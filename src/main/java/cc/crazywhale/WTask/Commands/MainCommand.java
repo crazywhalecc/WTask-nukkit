@@ -4,6 +4,10 @@ import cc.crazywhale.WTask.WTask;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -39,6 +43,25 @@ public class MainCommand extends Command {
         {
             switch(args[0])
             {
+                case "ss":
+                    try{
+                        File ss = new File(this.plugin.getDataFolder(), "default.cc");
+                        BufferedReader r = new BufferedReader(new FileReader(ss));
+                        String line;
+                        ArrayList<String> sLine = new ArrayList<>();
+                        while((line = r.readLine()) != null){
+                            sLine.add(line);
+                            sender.sendMessage(line);
+                        }
+                    }
+                    catch(Exception e){
+                        if(e instanceof FileNotFoundException)
+                            sender.sendMessage("文件不存在！");
+                        else
+                            sender.sendMessage("读取错误！");
+                    }
+                    break;
+                    //BufferedReader r = new BufferedReader(new FileReader(new File(plugin.getDataFolder().getPath() + "default.cc")));
                 case "添加任务":
                     if(args.length == 1)
                     {

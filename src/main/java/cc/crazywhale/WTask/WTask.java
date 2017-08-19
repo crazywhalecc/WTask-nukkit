@@ -24,6 +24,8 @@ public class WTask extends PluginBase {
     public Map<String, Object> privateTempData;
     public Map<String, String> publicTempData;
 
+    Map<String, Object> taskData;
+
     public void onLoad(){
         obj = this;
     }
@@ -36,6 +38,8 @@ public class WTask extends PluginBase {
 
         this.makeConfig();
         this.registerSettings();
+        this.api.loadTasks();
+        //saveResource("default.cc");
         if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
         {
             this.economyType = "EconomyAPI";

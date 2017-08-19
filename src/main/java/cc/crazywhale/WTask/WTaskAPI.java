@@ -5,7 +5,9 @@ import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,6 +24,77 @@ public class WTaskAPI {
     public WTaskAPI(WTask plugin)
     {
         this.plugin = plugin;
+    }
+
+    public boolean loadTasks(){
+        plugin.taskData.clear();
+        File[] files = (new File(plugin.getDataFolder(),"tasks/")).listFiles();
+        ArrayList<String> line = new ArrayList<>();
+        if(files == null){
+            return false;
+        }
+        for(File file : files){
+            if(file.isFile()){
+                String qw;
+                try{
+                    BufferedReader reader = new BufferedReader(new FileReader(file));
+                    while((qw = reader.readLine()) != null){
+                        line.add(qw);
+                    }
+                }
+                catch(Exception e){
+                    return false;
+                }
+            }
+        }
+        line.add("&&eof");
+        for(int id=0; id < line.size(); id++){
+            if(line.get(id).substring(0,1).equals("[")){
+                String executeMain = line.get(id).substring(1,line.get(id).lastIndexOf("]"));
+                System.out.println(executeMain);
+                String[] subMain = executeMain.split(":");
+                switch(subMain[0]){
+                    case "普通任务":
+                        String taskname = subMain[1];
+                        Map<String, Object> taskIns = this.subLoadTasks(line, id);
+                }
+            }
+        }
+        return true;
+    }
+
+    private Map<String, Object> subLoadTasks(ArrayList<String> line, int id){
+        int finalId = -1;
+        ArrayList<String> taskline = new ArrayList<>();
+        ArrayList<String> function = new ArrayList<>();
+        for(int i = id; i < line.size(); i++){
+            if(line.get(i).substring(0,1).equals("[") || line.get(i).equals("&&eof")){
+                finalId = i-1;
+                break;
+            }
+        }
+        if(finalId == -1){
+            return null;
+        }
+        for(int s = (id+1); s <= finalId; s++){
+            if(line.get(s).substring(0,1).equals("<")){
+                int fpos = line.get(s).lastIndexOf(">");
+                if(fpos < 0){
+                    plugin.getLogger().critical("任务解析出错！");
+                    return null;
+                }
+                taskline.add(line.get(s).substring(1,fpos));
+            }
+            else if(line.get(s).substring(0,1).equals("*")){
+                int fpos = line.get(s).lastIndexOf("*");
+                if(fpos < 0){
+                    plugin.getLogger().critical("任务解析出错！");
+                    return null;
+                }
+                function.add(line.get(s).substring(1,fpos));
+            }
+        }
+        return null;
     }
 
     public boolean addNormalTask(String name)
