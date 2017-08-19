@@ -7,6 +7,7 @@
       <w>normalcmd</w>
       <w>reducemoney</w>
       <w>scmd</w>
+      <w>sethealth</w>
       <w>teleport</w>
     </words>
   </dictionary>

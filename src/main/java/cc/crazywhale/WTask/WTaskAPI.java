@@ -261,7 +261,29 @@ public class WTaskAPI {
             case "additem":
                 return t.addItem(currentMap.get("function"));
             case "玩家动作":
-                return "false";
+                String[] curDat = currentMap.get("function").split("\\|");
+                if(t.player == null){
+                    return "false";
+                }
+                switch(curDat[0]){
+                    case "允许飞行":
+                        t.player.getAdventureSettings().setCanFly(true);
+                        return "true";
+                    case "取消飞行":
+                        t.player.getAdventureSettings().setFlying(false);
+                        t.player.getAdventureSettings().setCanFly(false);
+                        return "true";
+                    case "设置血量":
+                    case "sethealth":
+                        t.player.setHealth(Float.parseFloat(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    case "加血":
+                    case "addhealth":
+                        t.player.setHealth(t.player.getHealth() + Float.parseFloat(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    default:
+                        return "false";
+                }
             default:
                 return "false";
         }
