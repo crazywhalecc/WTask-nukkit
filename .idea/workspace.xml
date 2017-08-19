@@ -7,10 +7,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="eb7e2e2b-6aee-4a37-958e-583303657a8a" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/depends/EconomyAPI_v1.0.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/depends/MoeDB-1.1.0.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/depends/Money-2.0.8.jar" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -70,7 +67,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WTaskAPI.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="WTaskAPI.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/WTaskAPI.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="531">
@@ -78,6 +75,16 @@
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="15">
+              <caret line="1" column="20" lean-forward="false" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -124,16 +131,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ServerScheduler.class" pinned="false" current-in-tab="false">
-        <entry file="jar://$PROJECT_DIR$/../Nukkit-Server/nukkit-1.0-SNAPSHOT.jar!/cn/nukkit/scheduler/ServerScheduler.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1110">
-              <caret line="106" column="65" lean-forward="false" selection-start-line="106" selection-start-column="65" selection-end-line="106" selection-end-column="65" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -170,6 +167,7 @@
         <option value="$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/WTask.java" />
         <option value="$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/WTaskAPI.java" />
         <option value="$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/NormalTaskAPI.java" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -576,14 +574,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/Commands/MainCommand.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="12" column="42" lean-forward="false" selection-start-line="12" selection-start-column="42" selection-end-line="12" selection-end-column="42" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/cc/crazywhale/WTask/tasks/DelayedTask.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
@@ -1006,6 +996,14 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1" column="20" lean-forward="false" selection-start-line="1" selection-start-column="20" selection-end-line="1" selection-end-column="20" />
+          <folding />
         </state>
       </provider>
     </entry>
