@@ -1,3 +1,3 @@
 # WTask-nukkit
-WTask-nukkit????<br>
-???jar???QQ??237043779
+WTask-nukkit特别版～<br>
+想获取jar？加入QQ群：237043779
