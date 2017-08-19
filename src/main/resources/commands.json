@@ -1,0 +1,12 @@
+{
+  "MainCommand": {
+    "command": "wtask",
+    "permission": "wtask.command.op",
+    "description": "WTask主命令"
+  },
+  "NormalTaskCommand": {
+    "command": "wt",
+    "permission": "wtask.command.player",
+    "description": "WTask运行任务"
+  }
+}
