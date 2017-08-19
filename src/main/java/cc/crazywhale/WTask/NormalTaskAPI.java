@@ -2,6 +2,8 @@ package cc.crazywhale.WTask;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.command.ConsoleCommandSender;
+import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import me.onebone.economyapi.EconomyAPI;
@@ -15,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by whale on 2017/7/23.
  */
-public class NormalTaskAPI {
+public class NormalTaskAPI implements TaskBase{
 
     public Player player = null;
     public WTaskAPI api = null;
@@ -130,7 +132,7 @@ public class NormalTaskAPI {
         if(!this.api.plugin.privateTempData.containsKey(this.player.getName().toLowerCase())){
             this.api.plugin.privateTempData.put(this.player.getName().toLowerCase(),new LinkedHashMap<String, String>());
         }
-        Map<String, String> data = (Map<String, String>) this.api.plugin.privateTempData.get(this.player.getName().toLowerCase());
+        Map<String, String> data = WTask.getStringMap(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()));
         data.put(lis[0],lis[1]);
         this.api.plugin.privateTempData.put(this.player.getName(),data);
         return "true";
@@ -231,9 +233,55 @@ public class NormalTaskAPI {
             this.api.plugin.privateTempData.remove(this.player.getName().toLowerCase());
         }
         else{
-            Map<String, String> map = (Map<String, String>)this.api.plugin.privateTempData.get(this.player.getName().toLowerCase());
+            if(!(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()) instanceof Map))
+                return "false";
+            Map<String, String> map = WTask.getStringMap(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()));
             map.remove(this.api.executeReturnData(it,this.player));
         }
         return "true";
+    }
+
+    public String runCommand(String it){
+        if(this.player == null){
+            return "false";
+        }
+        it = api.executeReturnData(it,player);
+        if(api.plugin.getServer().dispatchCommand(this.player, it.replace("%p",this.player.getName()))){
+            return "true";
+        }
+        else{
+            return "false";
+        }
+    }
+
+    public String runConsoleCommand(String it){
+        it = api.executeReturnData(it,player);
+        if(api.plugin.getServer().dispatchCommand(new ConsoleCommandSender(), it.replace("%p",this.player.getName()))){
+            return "true";
+        }
+        else{
+            return "false";
+        }
+    }
+
+    public String addItem(String it){
+        String[] its = it.split("\\|");
+        String[] items = its[1].split(",");
+        Player p = api.plugin.getServer().getPlayerExact(api.executeReturnData(its[0],player));
+        if(p != null){
+            for (String item1 : items) {
+                p.getInventory().addItem(this.executeItem(item1));
+            }
+            return "true";
+        }
+        else
+        {
+            return "false";
+        }
+    }
+
+    public Item executeItem(String itemString){
+        String[] split = itemString.split("-");
+        return Item.get(Integer.parseInt(split[0]),Integer.parseInt(split[1]),Integer.parseInt(split[2]));
     }
 }

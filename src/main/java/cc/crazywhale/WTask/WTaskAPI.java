@@ -251,6 +251,17 @@ public class WTaskAPI {
             case "减钱":
             case "reducemoney":
                 return t.reduceMoney(currentMap.get("function"));
+            case "cmd":
+            case "指令":
+                return t.runCommand(currentMap.get("function"));
+            case "scmd":
+            case "控制台指令":
+                return t.runConsoleCommand(currentMap.get("function"));
+            case "添加物品":
+            case "additem":
+                return t.addItem(currentMap.get("function"));
+            case "玩家动作":
+                return "false";
             default:
                 return "false";
         }

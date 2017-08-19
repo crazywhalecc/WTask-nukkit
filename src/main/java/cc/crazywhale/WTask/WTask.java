@@ -19,12 +19,21 @@ public class WTask extends PluginBase {
     private MainCommand mainCommand;
     private NormalTaskCommand normalTaskCommand;
     private String economyType;
+    public static WTask obj;
 
     public Map<String, Object> privateTempData;
     public Map<String, String> publicTempData;
 
-    public void onEnable()
-    {
+    public void onLoad(){
+        obj = this;
+    }
+
+    public static WTask getInstance(){
+        return obj;
+    }
+
+    public void onEnable(){
+
         this.makeConfig();
         this.registerSettings();
         if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
@@ -69,5 +78,13 @@ public class WTask extends PluginBase {
 
     public String getEconomyType() {
         return economyType;
+    }
+
+    public static Map<String, String> getStringMap(Object p){
+        return (Map<String, String>) p;
+    }
+
+    public static Map<String, Object> getObjectMap(Object p){
+        return (Map<String, Object>) p;
     }
 }
