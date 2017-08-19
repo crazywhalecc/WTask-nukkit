@@ -248,6 +248,9 @@ public class WTaskAPI {
                 return t.addMoney(currentMap.get("function"));
             case "删私":
                 return t.deletePrivateData(currentMap.get("function"));
+            case "减钱":
+            case "reducemoney":
+                return t.reduceMoney(currentMap.get("function"));
             default:
                 return "false";
         }

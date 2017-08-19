@@ -205,6 +205,24 @@ public class NormalTaskAPI {
         }
     }
 
+    public String reduceMoney(String it){
+        it = api.executeReturnData(it, player);
+        switch (this.api.plugin.getEconomyType()) {
+            case "Money": {
+                BigDecimal c = new BigDecimal(it);
+                Money.getInstance().reduceMoney(this.player, c.floatValue());
+                return "true";
+            }
+            case "EconomyAPI": {
+                BigDecimal c = new BigDecimal(it);
+                EconomyAPI.getInstance().reduceMoney(this.player, c.floatValue());
+                return "true";
+            }
+            default:
+                return "false";
+        }
+    }
+
     public String deletePrivateData(String it){
         if(this.player == null){
             return "false";
