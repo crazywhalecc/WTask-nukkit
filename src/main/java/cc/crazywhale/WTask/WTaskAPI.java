@@ -107,6 +107,10 @@ public class WTaskAPI {
         return true;
     }
 
+    void bolt(){
+
+    }
+
     public boolean isTaskExists(String taskname)
     {
         String dir = "";
