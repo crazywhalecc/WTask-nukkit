@@ -32,7 +32,19 @@
             <artifactId>nukkit</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${basedir}/nukkit-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${basedir}/depends/nukkit-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>money</groupId>
+            <artifactId>Money</artifactId>
+            <scope>system</scope>
+            <systemPath>${basedir}/depends/Money-2.0.8.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>me.onebone.economyapi</groupId>
+            <artifactId>EconomyAPI</artifactId>
+            <scope>system</scope>
+            <systemPath>${basedir}/depends/EconomyAPI_v1.0.1.jar</systemPath>
         </dependency>
     </dependencies>
 

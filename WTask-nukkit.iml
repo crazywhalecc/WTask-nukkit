@@ -17,7 +17,25 @@
     <orderEntry type="module-library">
       <library name="Maven: cn.nukkit:nukkit:1.0-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/nukkit-1.0-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/depends/nukkit-1.0-SNAPSHOT.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: money:Money:unknown">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/depends/Money-2.0.8.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="Maven: me.onebone.economyapi:EconomyAPI:unknown">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/depends/EconomyAPI_v1.0.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
