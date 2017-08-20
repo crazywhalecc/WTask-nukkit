@@ -6,7 +6,7 @@
 
     <groupId>cc.crazywhale.WTask</groupId>
     <artifactId>WTask</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1</version>
     <build>
         <defaultGoal>compile</defaultGoal>
         <pluginManagement>
@@ -22,6 +22,7 @@
             </plugins>
         </pluginManagement>
     </build>
+
     <dependencies>
         <dependency>
             <!-- Nukkit is last, so that Guava can overwrite the ancient Google Collections -->

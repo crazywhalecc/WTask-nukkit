@@ -38,6 +38,7 @@ public class WTask extends PluginBase {
 
         this.makeConfig();
         this.registerSettings();
+        this.taskData = new LinkedHashMap<>();
         this.api.loadTasks();
         //saveResource("default.cc");
         if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
