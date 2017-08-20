@@ -32,6 +32,14 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" scope="PROVIDED" name="Maven: me.onebone:economyapi:1.0.0" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: me.onebone:economyapi:1.0.1">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/depends/EconomyAPI_v1.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

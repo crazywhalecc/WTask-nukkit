@@ -45,8 +45,9 @@
         <dependency>
             <groupId>me.onebone</groupId>
             <artifactId>economyapi</artifactId>
-            <version>1.0.0</version>
-            <scope>provided</scope>
+            <version>1.0.1</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/depends/EconomyAPI_v1.0.1.jar</systemPath>
         </dependency>
     </dependencies>
 
