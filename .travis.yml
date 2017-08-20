@@ -3,6 +3,3 @@ language: Java
 jdk:
   - oraclejdk8
 
-install:
-  - mvn clean
-  - mvn package
