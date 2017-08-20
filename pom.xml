@@ -6,7 +6,7 @@
 
     <groupId>cc.crazywhale.WTask</groupId>
     <artifactId>WTask</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.0</version>
     <build>
         <defaultGoal>compile</defaultGoal>
         <pluginManagement>
@@ -36,15 +36,17 @@
         </dependency>
         <dependency>
             <groupId>money</groupId>
-            <artifactId>Money</artifactId>
+            <artifactId>money</artifactId>
+            <version>1.0.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/depends/Money-2.0.8.jar</systemPath>
         </dependency>
+
         <dependency>
-            <groupId>me.onebone.economyapi</groupId>
-            <artifactId>EconomyAPI</artifactId>
-            <scope>system</scope>
-            <systemPath>${basedir}/depends/EconomyAPI_v1.0.1.jar</systemPath>
+            <groupId>me.onebone</groupId>
+            <artifactId>economyapi</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
