@@ -25,5 +25,15 @@
 
         </pluginManagement>
     </build>
+    <dependencies>
+        <dependency>
+            <!-- Nukkit is last, so that Guava can overwrite the ancient Google Collections -->
+            <groupId>cn.nukkit</groupId>
+            <artifactId>nukkit</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/nukkit-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+    </dependencies>
 
 </project>

@@ -14,5 +14,14 @@
     <orderEntry type="library" name="nukkit-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Money-2.0.8" level="project" />
     <orderEntry type="library" name="EconomyAPI-test" level="project" />
+    <orderEntry type="module-library">
+      <library name="Maven: cn.nukkit:nukkit:1.0-SNAPSHOT">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/nukkit-1.0-SNAPSHOT.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
