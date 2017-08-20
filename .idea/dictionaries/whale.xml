@@ -4,11 +4,13 @@
       <w>additem</w>
       <w>addmoney</w>
       <w>maincmd</w>
+      <w>makeuse</w>
       <w>normalcmd</w>
       <w>nukkit</w>
       <w>reducemoney</w>
       <w>scmd</w>
       <w>sethealth</w>
+      <w>taskline</w>
       <w>taskname</w>
       <w>teleport</w>
     </words>

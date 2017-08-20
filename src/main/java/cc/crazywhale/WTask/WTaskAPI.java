@@ -4,12 +4,11 @@ import cc.crazywhale.WTask.tasks.DelayedTask;
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
+import cn.nukkit.utils.TextFormat;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ import java.util.Map;
 public class WTaskAPI {
 
     public WTask plugin = null;
-    public Map<String, Object> taskLine = new LinkedHashMap<>();
+    private Map<String, String> mode = new LinkedHashMap<>();
 
     public WTaskAPI(WTask plugin)
     {
@@ -48,15 +47,70 @@ public class WTaskAPI {
             }
         }
         line.add("&&eof");
+        //for(String sss : line){ System.out.println(sss);}
         for(int id=0; id < line.size(); id++){
-            if(line.get(id).substring(0,1).equals("[")){
+            if(line.get(id).equals("")){
+                continue;
+            }
+            else if(line.get(id).substring(0,1).equals("[")){
                 String executeMain = line.get(id).substring(1,line.get(id).lastIndexOf("]"));
-                System.out.println(executeMain);
+                //System.out.println(executeMain);
                 String[] subMain = executeMain.split(":");
+                String taskname = subMain[1];
                 switch(subMain[0]){
                     case "普通任务":
-                        String taskname = subMain[1];
                         Map<String, Object> taskIns = this.subLoadTasks(line, id);
+                        if(taskIns == null){
+                            plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
+                            return false;
+                        }
+                        Map<String, String> ss = executeFunctions((ArrayList<String>) taskIns.get("function"));
+                        Map<String, Object> task = new LinkedHashMap<>();
+                        task.putAll(ss);
+                        task.put("type",subMain[0]);
+                        task.put("taskline",taskIns.get("taskline"));
+                        task.put("function",taskIns.get("function"));
+                        plugin.taskData.put(taskname, task);
+                        break;
+                    case "动作任务":
+                        taskname = subMain[1];
+                        if(subMain.length < 4){
+                            plugin.getLogger().critical("任务解析出错！请检查动作任务是否指定了类型和开服激活设置的填写！");
+                            return false;
+                        }
+                        Map<String, Object> taskIns2 = this.subLoadTasks(line,id);
+                        if(taskIns2 == null){
+                            plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
+                            return false;
+                        }
+                        Map<String, Object> task2 = new LinkedHashMap<>();
+                        task2.put("type",subMain[0]);
+                        task2.put("taskline",taskIns2.get("taskline"));
+                        task2.put("actType",subMain[2]);
+                        task2.put("actActive",(subMain[3].equals("true")));
+                        plugin.taskData.put(taskname,task2);
+                        break;
+                    case "循环任务":
+                        taskname = subMain[1];
+                        if(subMain.length < 4){
+                            plugin.getLogger().critical("任务解析出错！请检查循环任务是否指定了循环周期和开服激活设置的填写！");
+                            return false;
+                        }
+                        Map<String, Object> taskIns3 = subLoadTasks(line,id);
+                        if (taskIns3 == null) {
+                            plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
+                            return false;
+                        }
+                        Map<String, Object> task3 = new LinkedHashMap<>();
+                        task3.put("type",subMain[0]);
+                        task3.put("taskline",taskIns3.get("taskline"));
+                        task3.put("repeatTime",subMain[2]);
+                        task3.put("repeatActive",(subMain[3].equals("true")));
+                        plugin.taskData.put(taskname,task3);
+                        break;
+                    default:
+                        plugin.getLogger().critical("未知类型的任务解析！");
+                        return false;
                 }
             }
         }
@@ -65,10 +119,18 @@ public class WTaskAPI {
 
     private Map<String, Object> subLoadTasks(ArrayList<String> line, int id){
         int finalId = -1;
+        //System.out.println("ssss");
         ArrayList<String> taskline = new ArrayList<>();
         ArrayList<String> function = new ArrayList<>();
-        for(int i = id; i < line.size(); i++){
-            if(line.get(i).substring(0,1).equals("[") || line.get(i).equals("&&eof")){
+        for(int i = (id+1); i < line.size(); i++){
+            if(line.get(i).equals("")){
+                continue;
+            }
+            if(line.get(i).substring(0,1).equals("[")){
+                finalId = i-1;
+                break;
+            }
+            else if(line.get(i).equals("&&eof")){
                 finalId = i-1;
                 break;
             }
@@ -77,6 +139,9 @@ public class WTaskAPI {
             return null;
         }
         for(int s = (id+1); s <= finalId; s++){
+            if(line.get(s).equals("")){
+                continue;
+            }
             if(line.get(s).substring(0,1).equals("<")){
                 int fpos = line.get(s).lastIndexOf(">");
                 if(fpos < 0){
@@ -94,113 +159,106 @@ public class WTaskAPI {
                 function.add(line.get(s).substring(1,fpos));
             }
         }
-        return null;
+        Map<String, Object> mao = new LinkedHashMap<>();
+        mao.put("taskline",taskline);
+        mao.put("function",function);
+        return mao;
     }
 
-    public boolean addNormalTask(String name)
+    public boolean addNormalTask(String taskname)
     {
-        Config task = new Config(this.plugin.getDataFolder().getPath() + "/normalTasks/" + name + ".json",Config.JSON);
-        Map<String, Object> list = new LinkedHashMap<>();
-        list.put("任务线程","<end>");
-        task.setAll((LinkedHashMap<String, Object>) list);
-        task.save();
-        return true;
-    }
-
-    void bolt(){
-
+        if(isTaskExists(taskname)){
+            System.out.println("r任务真的已经存在了");
+            return false;
+        }
+        File path = new File(plugin.getDataFolder(),"tasks/");
+        File file = new File(path, taskname + ".cc");
+        if(!file.exists()){
+            try{
+                try {
+                    boolean r = file.createNewFile();
+                    if(!r){
+                        System.out.println("新文件创建不了！");
+                        plugin.getLogger().warning("创建任务失败！");
+                        return false;
+                    }
+                }
+                catch(IOException es){
+                    System.out.println("无法创建文件！");
+                }
+                FileOutputStream os = new FileOutputStream(new File(path,taskname + ".cc"));
+                os.write(("[普通任务:" + taskname + "]\n<结束>").getBytes());
+                loadTasks();
+                return true;
+            }
+            catch(Exception e){
+                if(e instanceof FileNotFoundException)
+                    System.out.println("新建写入任务时候未找到文件！");
+                else if(!(e instanceof IOException)){
+                    System.out.println("无法写入文件！");
+                }
+                plugin.getLogger().warning("创建任务失败！");
+            }
+        }
+        //System.out.println("文件已经存在");
+        return false;
     }
 
     public boolean isTaskExists(String taskname)
     {
-        String dir = "";
-        Map<String, Object> tasks = new LinkedHashMap<>();
-        try
-        {
-            dir = (new File(this.plugin.getDataFolder().getPath())).getCanonicalPath() + "/normalTasks";
-        }
-        catch(IOException r)
-        {
-            return false;
-        }
-        taskname = taskname + ".json";
-        File file = new File(dir);
-        for(int i = 0;i<file.listFiles().length;i++)
-        {
-            String filename = (new File(dir)).listFiles()[i].getName();
-            if(filename.equals(taskname))
-            {
-                return true;
-            }
-        }
-        return false;
+        Map<String, Object> t = getTaskData(taskname);
+        return t != null;
     }
 
-    public Map<String, Object> getTasks()
-    {
-        String dir = "";
-        Map<String, Object> tasks = new LinkedHashMap<>();
-        try
-        {
-            dir = (new File(this.plugin.getDataFolder().getPath())).getCanonicalPath() + "/normalTasks";
-        }
-        catch(IOException r)
-        {
-            return null;
-        }
-        for(int i = 0;i<(new File(dir)).listFiles().length;i++)
-        {
-            String filename = (new File(dir)).listFiles()[i].getName();
-            String[] listname = filename.split(".");
-            tasks.put(filename,this.getTask(listname[0]));
-        }
-        return tasks;
-    }
-
-    public Map<String, Object> getTask(String taskname)
-    {
-        String dir = "";
-        Map<String, Object> tasks = new LinkedHashMap<>();
-        try
-        {
-            dir = (new File(this.plugin.getDataFolder().getPath())).getCanonicalPath() + "/normalTasks";
-        }
-        catch(IOException r)
-        {
-            return null;
-        }
-        taskname = taskname + ".json";
-        for(int i = 0;i<(new File(dir)).listFiles().length;i++)
-        {
-            String filename = (new File(dir)).listFiles()[i].getName();
-            if(filename.equals(taskname))
-            {
-                Config task = new Config(this.plugin.getDataFolder().getPath() + "/normalTasks/" + taskname,Config.JSON);
-                return task.getAll();
-            }
+    Map<String, Object> getTaskData(String taskname){
+        if(plugin.taskData.containsKey(taskname)){
+            return (Map<String, Object>) plugin.taskData.get(taskname);
         }
         return null;
     }
 
+
+    /**
+     * @deprecated
+     * @param taskname: haha
+     * @return Map
+     */
+    public Map<String, Object> getTask(String taskname)
+    {
+        return getTaskData(taskname);
+    }
+
     public void preNormalTask(String taskname, Player p)
     {
-        Map<String, Object> taskData = this.getTask(taskname);
-        String[] taskline = ((String) taskData.get("任务线程")).split(";");
-        Map<Integer, Object> ID = new LinkedHashMap<>();
-        for(int i = 0;i< taskline.length;i++)
-        {
-            String current = this.getF1(taskline[i]);
-            String ssd = ".";
-            String[] broke = current.split("\\|");
-            Map<String, String> taskmap = new LinkedHashMap<>();
-            taskmap.put("type",broke[0]);
-            String[] brokes = this.array_shift(broke);
-            String function = this.implode("|",brokes);
-            taskmap.put("function",function);
-            ID.put(i,taskmap);
+        ArrayList<Map<String, String>> lineData = prepareTask(taskname);
+        plugin.normalTaskList.put(taskname,lineData);
+        boolean r = this.runNormalTask(taskname, p, 0);
+        if(!r){
+            p.sendMessage(TextFormat.RED + "任务运行失败！");
         }
-        this.taskLine.put(taskname,ID);
-        this.runNormalTask(taskname,p,0);
+    }
+
+    public ArrayList<Map<String, String>> prepareTask(String taskname){
+        Map<String, Object> data = getTaskData(taskname);
+        ArrayList<String> task = (ArrayList<String>) data.get("taskline");
+        ArrayList<Map<String, String>> ar = new ArrayList<>();
+        if(task.size() == 0){
+            Map<String, String> empty = new LinkedHashMap<>();
+            empty.put("type","end");
+            empty.put("function","");
+            ar.add(empty);
+            return ar;
+        }
+        for(String taskLine : task){
+            String[] temp = taskLine.split("\\|");
+            Map<String, String> full = new LinkedHashMap<>();
+            full.put("type",temp[0]);
+            ArrayList<String> ss = new ArrayList<>();
+            ss.addAll(Arrays.asList(temp).subList(1, temp.length));
+            full.put("function", implode("|",ss));
+            ar.add(full);
+        }
+        return ar;
     }
 
     public String getF1(String taskline)
@@ -231,29 +289,108 @@ public class WTaskAPI {
         return list;
     }
 
-    public String implode(String chars, String[] list)
+    public String implode(String chars, ArrayList<String> list)
     {
         String finals = "";
-        for(int i = 0; i < list.length; i++)
+        for(int i = 0; i < list.size(); i++)
         {
-            if(i != (list.length-1))
-                finals = finals + list[i] + chars;
+            if(i != (list.size()-1))
+                finals = finals + list.get(i) + chars;
             else
-                finals = finals + list[i];
+                finals = finals + list.get(i);
         }
         return finals;
     }
 
-    public boolean runNormalTask(String taskname, Player p,int ID)
+    boolean runNormalTask(String taskname, Player p,int ID)
     {
+        return runNormalTask(taskname,p,0,false);
+    }
+
+    public boolean runNormalTaskDaily(String taskname, Map<String, Object> data, Player p, boolean keep){
+        if(!data.containsKey("daily-mode")){
+            plugin.getLogger().warning("每日任务模式不存在！");
+            return false;
+        }
+        String[] line = ((String) data.get("daily-mode")).split(";");
+        mode.put(taskname,"false");
+        Map<String, Object> trueList = (Map<String, Object>) plugin.daily.get("普通任务");
+        if(!trueList.containsKey(taskname)){
+            trueList.put(taskname,new LinkedHashMap<String, Object>());
+            plugin.daily.set("普通任务",trueList);
+            plugin.daily.save();
+        }
+        if(!line[0].substring(0,1).equals("<")){
+            return true;
+        }
+        ArrayList<Map<String, String>> ar = new ArrayList<>();
+        for(int i = 0; i < line.length; i++){
+            String[] temp = getF1(line[i]).split("\\|");
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("type",temp[0]);
+            ArrayList<String> ss = new ArrayList<>();
+            ss.addAll(Arrays.asList(temp).subList(1, temp.length));
+            map.put("function",implode("|",ss));
+            ar.add(map);
+        }
+        int ID = 0;
+        while(ID < ar.size()){
+            switch(ar.get(ID).get("type")){
+                case "setmode":
+                    String[] li = ar.get(ID).get("function").split("\\|");
+                    switch(li[0]){
+                        case "false":
+                            mode.put(taskname,"false");
+                            break;
+                        case "一次性":
+                            mode.put(taskname,"once");
+                            break;
+                        case "一天多次":
+                            mode.put(taskname,"multi-day:" + li[1]);
+                            break;
+                        case "多天一次":
+                            mode.put(taskname,"single-day:" + li[1]);
+                            break;
+                        case "限定次":
+                            mode.put(taskname,"limit-time:" + li[1]);
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            ID++;
+        }
+        return true;
+    }
+
+    public boolean runNormalTask(String taskname, Player p, int ID, boolean delayStep){
+        if(!delayStep){
+            ID=0;
+            Map<String, Object> taskData = getTaskData(taskname);
+            if(taskData.containsKey("daily-mode")){
+                if(p == null){
+                    plugin.getLogger().warning("检测到非玩家运行了每日模式任务！任务强行停止！");
+                    return false;
+                }
+                boolean result = runNormalTaskDaily(taskname, taskData, p, false);
+                if(!result){
+                    plugin.getLogger().warning("未设置每日模式，无法使用daily-mode！已强制停止任务！");
+                    return false;
+                }
+            }
+            System.out.println("检测到玩家：" + p.getName() + "运行了任务： " +taskname);
+        }
         NormalTaskAPI t = new NormalTaskAPI(p,this);
-        Map<Integer, Object> taskInside = (Map<Integer, Object>) this.taskLine.get(taskname);
-        while(taskInside.containsKey(ID))
+        ArrayList<Map<String, String>> taskInside = this.plugin.normalTaskList.get(taskname);
+        System.out.println("size: " + taskInside.size());
+        while(ID < taskInside.size())
         {
-            Map<String, String> currentMap = (Map<String,String>) taskInside.get(ID);
+            Map<String, String> currentMap = taskInside.get(ID);
             switch(currentMap.get("type"))
             {
-
                 case "delay":
                 case "延迟":
                     this.plugin.getServer().getScheduler().scheduleDelayedTask(new DelayedTask(this.plugin,p,taskname,ID+1),Integer.parseInt(currentMap.get("function"))*20);
@@ -264,7 +401,7 @@ public class WTaskAPI {
                         case "true":
                             break;
                         case "false":
-                            plugin.getLogger().warning("在运行任务 " + taskname + " 时出现了错误！");
+                            plugin.getLogger().warning("在运行任务：" + taskname + " 第 " + (ID+1) + " 号时出现了错误！");
                             break;
                         case "end":
                             ID = 10000;
@@ -339,7 +476,9 @@ public class WTaskAPI {
                 return t.addItem(currentMap.get("function"));
             case "玩家动作":
                 String[] curDat = currentMap.get("function").split("\\|");
+                for(String line : curDat){System.out.println(line);}
                 if(t.player == null){
+                    System.out.println("玩家不存在，无法食用玩家动作！");
                     return "false";
                 }
                 switch(curDat[0]){
@@ -359,9 +498,11 @@ public class WTaskAPI {
                         t.player.setHealth(t.player.getHealth() + Float.parseFloat(executeReturnData(curDat[1],t.player)));
                         return "true";
                     default:
+                        System.out.println("未知类型的玩家动作！");
                         return "false";
                 }
             default:
+                System.out.println("未知类型的功能！");
                 return "false";
         }
     }
@@ -375,7 +516,7 @@ public class WTaskAPI {
         String m1 = this.getF2(line);
         String[] mtype = m1.split(":");
         String[] templist = this.array_shift(mtype);
-        String lis = this.implode(":",templist);
+        String lis = this.plugin.implode(":",templist);
         switch(mtype[0])
         {
             case "玩家":
@@ -437,6 +578,14 @@ public class WTaskAPI {
                 break;
         }
         p.dataPacket(pk);
+    }
 
+    public Map<String, String> executeFunctions(ArrayList<String> functions){
+        Map<String, String> functionList = new LinkedHashMap<>();
+        for(String fc : functions){
+            String[] ls = fc.split(":");
+            functionList.put(ls[0],ls[1]);
+        }
+        return functionList;
     }
 }

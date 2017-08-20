@@ -241,15 +241,10 @@ public class Config {
                         entry = (Map.Entry)o;
                     }
             }
-
-            if(async.booleanValue()) {
-                Server.getInstance().getScheduler().scheduleAsyncTask(new FileWriteTask(this.file, content));
-            } else {
-                try {
-                    Utils.writeFile(this.file, content);
-                } catch (IOException var8) {
-                    Server.getInstance().getLogger().logException(var8);
-                }
+            try {
+                Utils.writeFile(this.file, content);
+            } catch (IOException var8) {
+                Server.getInstance().getLogger().logException(var8);
             }
 
             return true;

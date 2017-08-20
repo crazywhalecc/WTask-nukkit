@@ -5,6 +5,8 @@ import cc.crazywhale.WTask.Commands.NormalTaskCommand;
 import cn.nukkit.level.generator.Normal;
 import cn.nukkit.plugin.PluginBase;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,21 +15,31 @@ import java.util.Map;
  */
 public class WTask extends PluginBase {
 
-    private Config setting;
+    public Config setting;
     public WTaskAPI api;
-    private Config command;
+    public Config command;
+    public Config daily;
     private MainCommand mainCommand;
     private NormalTaskCommand normalTaskCommand;
     private String economyType;
     public static WTask obj;
 
-    public Map<String, Object> privateTempData;
+    public Map<String, Map<String, String>> privateTempData;
     public Map<String, String> publicTempData;
 
     Map<String, Object> taskData;
+    Map<String, ArrayList<Map<String, String>>>normalTaskList;
 
     public void onLoad(){
         obj = this;
+        initializeData();
+    }
+
+    private void initializeData(){
+        privateTempData = new LinkedHashMap<>();
+        publicTempData = new LinkedHashMap<>();
+        taskData = new LinkedHashMap<>();
+        normalTaskList = new LinkedHashMap<>();
     }
 
     public static WTask getInstance(){
@@ -35,11 +47,20 @@ public class WTask extends PluginBase {
     }
 
     public void onEnable(){
-
+        File taskPath = new File(getDataFolder(),"tasks/");
+        if(!taskPath.exists()){
+            boolean r = taskPath.mkdirs();
+            if(!r){
+                getLogger().warning("文件夹创建异常！");
+            }
+        }
         this.makeConfig();
         this.registerSettings();
         this.taskData = new LinkedHashMap<>();
-        this.api.loadTasks();
+        boolean r = this.api.loadTasks();
+        if(!r){
+            getLogger().critical("任务解析出错！请检查任务内容后重新/wtask reload");
+        }
         //saveResource("default.cc");
         if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
         {
@@ -61,6 +82,11 @@ public class WTask extends PluginBase {
         this.setting.save();
         this.saveResource("commands.json");
         this.command = new Config(this.getDataFolder().getPath() + "/commands.json",Config.JSON);
+        this.daily = new Config(this.getDataFolder().getPath() + "/Finish.json",Config.JSON);
+        if(!daily.exists("普通任务")){
+            daily.set("普通任务",new LinkedHashMap<String, Object>());
+            daily.save();
+        }
     }
 
     private void registerSettings()
@@ -91,5 +117,13 @@ public class WTask extends PluginBase {
 
     public static Map<String, Object> getObjectMap(Object p){
         return (Map<String, Object>) p;
+    }
+
+    String implode(String chars, String[] like){
+        StringBuilder aa = new StringBuilder();
+        for(String sss : like){
+            aa.append(chars).append(sss);
+        }
+        return aa.toString();
     }
 }

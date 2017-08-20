@@ -28,8 +28,9 @@ public class MainCommand extends Command {
 
         this.plugin = plugin;
         this.setPermission((String) desc.get("permission"));
-        this.mainHelp.add("§6=====WTask=====");
-        this.mainHelp.add("§a/" + c + " 添加任务: §b添加一个普通任务");
+        mainHelp.add("§6=====WTask=====");
+        mainHelp.add("§a/" + c + " 添加任务: §b添加一个普通任务");
+        mainHelp.add("§a/" + c + " reload: §b重载WTask");
     }
 
     public boolean execute(CommandSender sender, String ssss, String[] args)
@@ -79,6 +80,13 @@ public class MainCommand extends Command {
                         sender.sendMessage("§c[WTask] 创建任务 " + args[1] + " 失败！");
                         return true;
                     }
+                case "reload":
+                    plugin.api.loadTasks();
+                    plugin.setting.reload();
+                    plugin.command.reload();
+                    plugin.daily.reload();
+                    sender.sendMessage("§a[WTask] 重载完毕！");
+                    return true;
                 case "exit":
                     this.unregister(this.plugin.getServer().getCommandMap());
                     break;

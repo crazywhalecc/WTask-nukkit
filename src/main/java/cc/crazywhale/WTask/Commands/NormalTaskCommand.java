@@ -5,7 +5,9 @@ import cc.crazywhale.WTask.WTaskAPI;
 import cn.nukkit.Player;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.ConsoleCommandSender;
 
+import java.io.Console;
 import java.util.Map;
 
 /**
@@ -38,6 +40,10 @@ public class NormalTaskCommand extends Command {
             String taskname = args[0];
             if(this.plugin.api.isTaskExists(taskname))
             {
+                if(sender instanceof ConsoleCommandSender){
+                    sender.sendMessage("请在游戏内运行任务！");
+                    return true;
+                }
                 this.api.preNormalTask(taskname,(Player) sender);
                 return true;
             }

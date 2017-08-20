@@ -26,6 +26,6 @@ public class DelayedTask extends PluginTask<WTask>{
 
     public void onRun(int time)
     {
-        this.api.runNormalTask(this.taskname,this.player,this.ID);
+        this.api.runNormalTask(this.taskname,this.player,this.ID,true);
     }
 }
