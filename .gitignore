@@ -1,4 +1,4 @@
-target/*
+target
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -11,6 +11,8 @@ buildNumber.properties
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
 
-*.iml
+WTask-nukkit.iml
 .idea
 src/test/
+my.cc
+my.cc

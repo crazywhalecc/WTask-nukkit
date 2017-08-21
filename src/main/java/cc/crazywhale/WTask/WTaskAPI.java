@@ -7,6 +7,7 @@ import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -49,7 +50,7 @@ public class WTaskAPI {
         line.add("&&eof");
         //for(String sss : line){ System.out.println(sss);}
         for(int id=0; id < line.size(); id++){
-            if(line.get(id).equals("")){
+            if(line.get(id).equals("")) {
                 continue;
             }
             else if(line.get(id).substring(0,1).equals("[")){
@@ -263,14 +264,12 @@ public class WTaskAPI {
 
     public String getF1(String taskline)
     {
-        String line = taskline.substring(taskline.indexOf("<")+1,taskline.lastIndexOf(">"));
-        return line;
+        return taskline.substring(taskline.indexOf("<")+1,taskline.lastIndexOf(">"));
     }
 
     public String getF2(String taskline)
     {
-        String line = taskline.substring(taskline.indexOf("(")+1,taskline.lastIndexOf(")"));
-        return line;
+        return taskline.substring(taskline.indexOf("(")+1,taskline.lastIndexOf(")"));
     }
 
     public String[] array_shift(String[] li)
@@ -285,8 +284,7 @@ public class WTaskAPI {
         {
             my.add(li[sss]);
         }
-        String[] list = my.toArray(new String[0]);
-        return list;
+        return my.toArray(new String[0]);
     }
 
     public String implode(String chars, ArrayList<String> list)
@@ -397,16 +395,17 @@ public class WTaskAPI {
                     return true;
                 default:
                     String r = defaultFunction(t,currentMap);
-                    switch(r) {
+                    String[] newr = r.split(":");
+                    switch(newr[0]) {
                         case "true":
                             break;
                         case "false":
-                            plugin.getLogger().warning("在运行任务：" + taskname + " 第 " + (ID+1) + " 号时出现了错误！");
+                            plugin.getLogger().warning("在运行任务：" + taskname + " 第 " + (ID+1) + " 号时出现了错误！\n错误信息：" + newr[1]);
                             break;
                         case "end":
                             ID = 10000;
                         default:
-                            String[] pp = r.split("-");
+                            String[] pp = newr[0].split("-");
                             if (pp.length == 2) {
                                 ID = Integer.parseInt(pp[1]) - 2;
                             } else {
@@ -478,8 +477,7 @@ public class WTaskAPI {
                 String[] curDat = currentMap.get("function").split("\\|");
                 for(String line : curDat){System.out.println(line);}
                 if(t.player == null){
-                    System.out.println("玩家不存在，无法食用玩家动作！");
-                    return "false";
+                    return "false:玩家不存在，无法食用玩家动作！";
                 }
                 switch(curDat[0]){
                     case "允许飞行":
@@ -497,14 +495,67 @@ public class WTaskAPI {
                     case "addhealth":
                         t.player.setHealth(t.player.getHealth() + Float.parseFloat(executeReturnData(curDat[1],t.player)));
                         return "true";
+                    case "设置血量上限":
+                        t.player.setMaxHealth(strtoint(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    case "减血":
+                    case "reducehealth":
+                        int ori = (new BigDecimal(t.player.getHealth())).intValue();
+                        t.player.setHealth(strtoint(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    case "设置饥饿":
+                        return "false:不通用的方法";
+                    case "加经验":
+                    case "addexp":
+                        t.player.addExperience(strtoint(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    case "加经验等级":
+                        return "false:nukkit不通用的方法";
+                    case "切换创造":
+                        return t.player.setGamemode(1,true) ? "true" : "false:切换模式失败！";
+                    case "切换生存":
+                        return t.player.setGamemode(0,true) ? "true" : "false:切换模式失败！";
+                    case "穿鞋":
+                        Item item = t.executeItem(executeReturnData(curDat[1],t.player));
+                        return t.player.getInventory().setBoots(item) ? "true" : "false:穿鞋失败！";
+                    case "穿衣":
+                        Item item2 = t.executeItem(executeReturnData(curDat[1],t.player));
+                        return t.player.getInventory().setChestplate(item2) ? "true" : "false:穿衣失败！";
+                    case "穿裤":
+                        Item item3 = t.executeItem(executeReturnData(curDat[1],t.player));
+                        return t.player.getInventory().setLeggings(item3) ? "true" : "false:穿裤失败！";
+                    case "戴头盔":
+                        Item item4 = t.executeItem(executeReturnData(curDat[1],t.player));
+                        return t.player.getInventory().setHelmet(item4) ? "true" : "false:戴头盔失败！";
+                    case "kick":
+                        return t.player.kick() ? "end" : "false:踢出玩家失败！";
+                    case "ban":
+                        t.player.setBanned(true);
+                        return "true";
+                    case "皮肤伪装":
+                        return t.setCustomSkin(curDat[1]);
+                    case "设置大小":
+                        t.player.setScale(strtoint(executeReturnData(curDat[1],t.player)));
+                        return "true";
+                    case "设置权限":
+                        if(plugin == null){
+                            return "false:内部错误！";
+                        }
+                        int perm = strtoint(executeReturnData(curDat[1],t.player));
+                        t.setPermission(perm);
+                        return "true";
                     default:
-                        System.out.println("未知类型的玩家动作！");
-                        return "false";
+                        return "false:未知类型的玩家动作！";
                 }
+            case "添加效果":
+                return t.addEffect(currentMap.get("function"));
             default:
-                System.out.println("未知类型的功能！");
-                return "false";
+                return "false:未知类型的功能！";
         }
+    }
+
+    public int strtoint(String line){
+        return Integer.parseInt(line);
     }
 
     public String executeReturnData(String line, Player p)

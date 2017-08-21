@@ -18,7 +18,11 @@ public class WTask extends PluginBase {
     public Config setting;
     public WTaskAPI api;
     public Config command;
+    public Config msg;
+    public Config playerPerm;
+    public Config mod;
     public Config daily;
+    public Config customCommand;
     private MainCommand mainCommand;
     private NormalTaskCommand normalTaskCommand;
     private String economyType;
@@ -77,7 +81,7 @@ public class WTask extends PluginBase {
     {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Config-Version",1);
-        this.setting = new Config(this.getDataFolder().getPath() + "/setting.json",Config.JSON);
+        this.setting = new Config(this.getDataFolder().getPath() + "/config.yml",Config.YAML);
         this.setting.setDefault((LinkedHashMap<String, Object>) map);
         this.setting.save();
         this.saveResource("commands.json");
@@ -87,6 +91,12 @@ public class WTask extends PluginBase {
             daily.set("普通任务",new LinkedHashMap<String, Object>());
             daily.save();
         }
+        playerPerm = new Config(getDataFolder().getPath() + "/permissions.yml",Config.YAML);
+        saveResource("messages.json");
+        msg = new Config(getDataFolder().getPath() + "/messages.json",Config.JSON);
+        saveResource("mods.json");
+        mod = new Config(getDataFolder().getPath() + "/mods.json",Config.JSON);
+        customCommand = new Config(getDataFolder().getPath() + "customCommands.json",Config.JSON);
     }
 
     private void registerSettings()

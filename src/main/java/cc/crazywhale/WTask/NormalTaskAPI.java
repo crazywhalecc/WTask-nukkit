@@ -3,9 +3,11 @@ package cc.crazywhale.WTask;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
+import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.potion.Effect;
 import me.onebone.economyapi.EconomyAPI;
 import money.Money;
 
@@ -70,7 +72,7 @@ public class NormalTaskAPI implements TaskBase{
         p = this.api.plugin.getServer().getPlayerExact(player);
         if(p == null)
         {
-            return "false";
+            return "false:玩家不存在！";
         }
         this.api.sendMsgPacket(msg,p,0);
         return "true";
@@ -93,7 +95,7 @@ public class NormalTaskAPI implements TaskBase{
         p = this.api.plugin.getServer().getPlayerExact(player);
         if(p == null)
         {
-            return "false";
+            return "false:玩家不存在！";
         }
         this.api.sendMsgPacket(msg,p,1);
         return "true";
@@ -116,7 +118,7 @@ public class NormalTaskAPI implements TaskBase{
         p = this.api.plugin.getServer().getPlayerExact(player);
         if(p == null)
         {
-            return "false";
+            return "false:玩家不存在！";
         }
         this.api.sendMsgPacket(msg,p,2);
         return "true";
@@ -125,7 +127,7 @@ public class NormalTaskAPI implements TaskBase{
     public String writePrivateData(String it)
     {
         if(this.player == null)
-            return "false";
+            return "false:玩家不存在！";
         String[] lis = it.split("\\|");
         lis[0] = this.api.executeReturnData(lis[0],this.player);
         lis[1] = this.api.executeReturnData(lis[1],this.player);
@@ -172,7 +174,7 @@ public class NormalTaskAPI implements TaskBase{
         Player p = Server.getInstance().getPlayerExact(lis[0]);
         if(p == null)
         {
-            return "false";
+            return "false:玩家不存在！";
         }
         p.teleport(pos);
         return "true";
@@ -203,7 +205,7 @@ public class NormalTaskAPI implements TaskBase{
                 return "true";
             }
             default:
-                return "false";
+                return "false:未安装任何经济核心！";
         }
     }
 
@@ -221,20 +223,20 @@ public class NormalTaskAPI implements TaskBase{
                 return "true";
             }
             default:
-                return "false";
+                return "false:未安装任何经济核心！";
         }
     }
 
     public String deletePrivateData(String it){
         if(this.player == null){
-            return "false";
+            return "false:玩家不存在！";
         }
         if(it.equals("*all")){
             this.api.plugin.privateTempData.remove(this.player.getName().toLowerCase());
         }
         else{
-            if(!(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()) instanceof Map))
-                return "false";
+            if(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()) == null)
+                return "false:内部错误";
             Map<String, String> map = WTask.getStringMap(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()));
             map.remove(this.api.executeReturnData(it,this.player));
         }
@@ -243,14 +245,14 @@ public class NormalTaskAPI implements TaskBase{
 
     public String runCommand(String it){
         if(this.player == null){
-            return "false";
+            return "false:玩家不存在！";
         }
         it = api.executeReturnData(it,player);
         if(api.plugin.getServer().dispatchCommand(this.player, it.replace("%p",this.player.getName()))){
             return "true";
         }
         else{
-            return "false";
+            return "false:指令无法执行";
         }
     }
 
@@ -260,7 +262,7 @@ public class NormalTaskAPI implements TaskBase{
             return "true";
         }
         else{
-            return "false";
+            return "false:指令无法执行";
         }
     }
 
@@ -276,12 +278,50 @@ public class NormalTaskAPI implements TaskBase{
         }
         else
         {
-            return "false";
+            return "false:玩家不存在！";
         }
     }
 
     public Item executeItem(String itemString){
         String[] split = itemString.split("-");
         return Item.get(Integer.parseInt(split[0]),Integer.parseInt(split[1]),Integer.parseInt(split[2]));
+    }
+
+    public String setCustomSkin(String it){
+        if(this.player == null){
+            return "false:玩家不存在";
+        }
+        Player real = Server.getInstance().getPlayerExact(api.executeReturnData(it,this.player));
+        if(real == null){
+            return "false:切换皮肤的原始玩家不在线！";
+        }
+        Skin skin = real.getSkin();
+        this.player.setSkin(skin);
+        return "true";
+    }
+
+    public void setPermission(int perm){
+        if(this.player == null){
+            return;
+        }
+        api.plugin.playerPerm.set(player.getName().toLowerCase(),perm);
+        api.plugin.playerPerm.save();
+    }
+
+    public String addEffect(String it){
+        String[] its = it.split("\\|");
+        if(player == null){
+            return "false::玩家不存在！";
+        }
+        int id = api.strtoint(api.executeReturnData(its[0],player));
+        int sec = api.strtoint(api.executeReturnData(its[1],player));
+        int level = api.strtoint(api.executeReturnData(its[2],player));
+        boolean particle = api.executeReturnData(its[3], player).equals("效果开");
+        Effect effect = Effect.getEffect(id);
+        effect.setVisible(particle);
+        effect.setAmplifier(level);
+        effect.setDuration(sec);
+        player.addEffect(effect);
+        return "true";
     }
 }

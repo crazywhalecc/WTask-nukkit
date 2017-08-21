@@ -21,4 +21,7 @@ interface TaskBase {
     String runConsoleCommand(String it);
     String addItem(String it);
     Item executeItem(String it);
+    String setCustomSkin(String it);
+    void setPermission(int perm);
+    String addEffect(String it);
 }
