@@ -91,12 +91,12 @@ public class WTask extends PluginBase {
             daily.set("普通任务",new LinkedHashMap<String, Object>());
             daily.save();
         }
-        playerPerm = new Config(getDataFolder().getPath() + "/permissions.yml",Config.YAML);
+        playerPerm = new Config(this.getDataFolder().getPath() + "/permissions.yml",Config.YAML);
         saveResource("messages.json");
-        msg = new Config(getDataFolder().getPath() + "/messages.json",Config.JSON);
+        msg = new Config(this.getDataFolder().getPath() + "/messages.json",Config.JSON);
         saveResource("mods.json");
-        mod = new Config(getDataFolder().getPath() + "/mods.json",Config.JSON);
-        customCommand = new Config(getDataFolder().getPath() + "customCommands.json",Config.JSON);
+        mod = new Config(this.getDataFolder().getPath() + "/mods.json",Config.JSON);
+        customCommand = new Config(this.getDataFolder().getPath() + "/customCommands.json",Config.JSON);
     }
 
     private void registerSettings()

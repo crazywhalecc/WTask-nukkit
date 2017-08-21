@@ -16,3 +16,9 @@ WTask-nukkit.iml
 src/test/
 my.cc
 my.cc
+
+target/classes/plugin.yml
+
+target/classes/plugin.yml
+
+.idea/artifacts/WTask_debug.xml

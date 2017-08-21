@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="WTask-debug">
-    <output-path>$PROJECT_DIR$/../Nukkit-Server/plugins</output-path>
-    <root id="archive" name="WTask-debug.jar">
-      <element id="module-output" name="WTask-nukkit" />
-    </root>
-  </artifact>
-</component>
