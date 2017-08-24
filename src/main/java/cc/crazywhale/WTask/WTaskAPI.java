@@ -5,13 +5,13 @@ import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
+import me.onebone.economyapi.EconomyAPI;
+import money.Money;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.sql.Time;
+import java.util.*;
 
 /**
  * Created by whale on 2017/7/22.
@@ -558,6 +558,7 @@ public class WTaskAPI {
         return Integer.parseInt(line);
     }
 
+    @SuppressWarnings("unchecked")
     public String executeReturnData(String line, Player p)
     {
         if(!line.substring(0,1).equals("("))
@@ -588,15 +589,190 @@ public class WTaskAPI {
                         Item item = p.getInventory().getItemInHand();
                         hand = item.getId() + "-" + item.getDamage() + "-" + item.getCount();
                         return hand;
+                    case "鞋子id":
+                        return String.valueOf(p.getInventory().getBoots().getId());
+                    case "鞋子damage":
+                        return String.valueOf(p.getInventory().getBoots().getDamage());
+                    case "衣服id":
+                        return String.valueOf(p.getInventory().getChestplate().getId());
+                    case "衣服damage":
+                        return String.valueOf(p.getInventory().getChestplate().getDamage());
+                    case "裤子id":
+                        return String.valueOf(p.getInventory().getLeggings().getId());
+                    case "裤子damage":
+                        return String.valueOf(p.getInventory().getLeggings().getDamage());
+                    case "头盔id":
+                        return String.valueOf(p.getInventory().getHelmet().getId());
+                    case "头盔damage":
+                        return String.valueOf(p.getInventory().getHelmet().getDamage());
+                    case "金钱":
+                    case "金钱整数":
+                        switch (plugin.getEconomyType()) {
+                            case "EconomyAPI":
+                                return String.valueOf((new BigDecimal(EconomyAPI.getInstance().myMoney(p))).intValue());
+                            case "Money":
+                                return String.valueOf((new BigDecimal(Money.getInstance().getMoney(p)).intValue()));
+                            default:
+                                return "(error:no_economy)";
+                        }
+                    case "金钱exact":
+                        switch (plugin.getEconomyType()) {
+                            case "EconomyAPI":
+                                return String.valueOf((new BigDecimal(EconomyAPI.getInstance().myMoney(p))).floatValue());
+                            case "Money":
+                                return String.valueOf((new BigDecimal(Money.getInstance().getMoney(p)).floatValue()));
+                            default:
+                                return "(error:no_economy)";
+                        }
+                    case "x":
+                        return String.valueOf(p.x);
+                    case "y":
+                        return String.valueOf(p.y);
+                    case "z":
+                        return String.valueOf(p.z);
+                    case "地图名":
+                    case "level":
+                    case "world":
+                        return p.getLevel().getFolderName();
+                    case "与最近玩家的距离":
+                        ArrayList<Double> dis = new ArrayList<>();
+                        Map<UUID,Player> all = plugin.getServer().getOnlinePlayers();
+                        for(Map.Entry<UUID,Player> player : all.entrySet()){
+                            if(p.getName().equals(player.getValue().getName()))
+                                continue;
+                            if(!p.getLevel().getFolderName().equals(player.getValue().getLevel().getFolderName()))
+                                continue;
+                            dis.add(p.distance(player.getValue()));
+                        }
+                        if(dis.size() == 0){
+                            return "无其他玩家";
+                        }
+
+                        Comparator c = new Comparator<Double>() {
+                            public int compare(Double o1, Double o2) {
+                                // TODO Auto-generated method stub
+                                if(o1>o2)
+                                    return 1;
+                                    //注意！！返回值必须是一对相反数，否则无效。jdk1.7以后就是这样。
+                                    //      else return 0; //无效
+                                else return -1;
+                            }
+                        };
+                        Collections.sort(dis,c);
+                        return String.valueOf(dis.get(0));
+                    case "坐标":
+                        return String.valueOf(new BigDecimal(p.x).intValue()) + ":" + String.valueOf(new BigDecimal(p.y).intValue()) + ":" + String.valueOf(new BigDecimal(p.z).intValue()) + p.level.getFolderName();
+                    case "饥饿值":
+                        return String.valueOf(p.getFoodData().getLevel());
+                    case "血量":
+                    case "health":
+                        return String.valueOf(p.getHealth());
+                    case "最大血量":
+                        return String.valueOf(p.getMaxHealth());
+                    case "ip":
+                        return p.getAddress();
+                    case "port":
+                        return String.valueOf(p.getPort());
+                    case "ip归属地":
+                        return "Java版WTask暂不支持ip归属地数据库！";
                     case "whale":
                         return "哈哈大帅哥！";
                     case "cc":
                         return "It's Whale's secret.";
                     default:
-                        return "";
+                        return "(error:unknown_func)";
+                }
+            case "物品解析":
+                String[] dataIns = lis.split("\\.");
+                String r2 = checkCirculate(dataIns[1],p);
+                String itemdd = (r2.equals("none") ? dataIns[1] : r2);
+                String[] itemlist = itemdd.split("-");
+                switch(dataIns[0]){
+                    case "物品id":
+                        return itemlist[0];
+                    case "物品damage":
+                    case "物品特殊值":
+                        return itemlist[1];
+                    case "物品数量":
+                        return itemlist[2];
+                    case "物品id和特殊值":
+                        return itemlist[0] + "-" + itemlist[1];
+                    case "物品id和数量":
+                        return itemlist[0] + "-" + itemlist[2];
+                    case "物品id和特殊值和数量":
+                        return itemdd;
+                    case "物品名称":
+                        return "未检测到安装了中文名称数据库，请先安装数据库后再食用！";
+                    default:
+                        return "(error:unknown_selection)";
                 }
             case "时间戳":
-                return Long.toString(System.currentTimeMillis());
+                Date date = new Date();
+                int mini = (new BigDecimal(date.getTime())).intValue();
+                return String.valueOf(mini);
+            case "小时间戳":
+                return String.valueOf((new Date()).getTime());
+            case "随机数":
+                String[] s = lis.split(",");
+                String[] s2 = new String[2];
+                s2[0] = checkCirculate(s[0],p);
+                s[0] = (s2[0].equals("none") ? s[0] : s2[0]);
+                s2[1] = checkCirculate(s[1],p);
+                s[1] = (s2[1].equals("none") ? s[1] : s2[1]);
+                return String.valueOf(getRandomNum(Integer.parseInt(s[0]),Integer.parseInt(s[1])));
+            case "计算":
+                String posOf = executePlus(lis);
+                if(posOf.equals("none")){
+                    return "(error:character_not_exist)";
+                }
+                String[] lineList = lis.split(posOf);
+                String bs1 = checkCirculate(lineList[0],p);
+                lineList[0] = (bs1.equals("none") ? lineList[0] : bs1);
+                String bs2 = checkCirculate(lineList[1],p);
+                lineList[1] = (bs2.equals("none") ? lineList[1] : bs2);
+                return this.cal(lineList[0],lineList[1],posOf);
+            case "读公":
+                String rr = checkCirculate(lis,p);
+                lis = (rr.equals("none") ? lis : rr);
+                if(plugin.publicTempData.containsKey(lis)){
+                    return plugin.publicTempData.get(lis);
+                }
+                else{
+                    return "";
+                }
+            case "读私":
+                if(p == null){
+                    return "(error:null_player)";
+                }
+                String rr2 = checkCirculate(lis,p);
+                lis = (rr2.equals("none") ? lis : rr2);
+                if(plugin.privateTempData.containsKey(p.getName().toLowerCase())){
+                    if(plugin.privateTempData.get(p.getName().toLowerCase()).containsKey(lis)){
+                        return plugin.privateTempData.get(p.getName().toLowerCase()).get(lis);
+                    }
+                }
+                return "(error:none)";
+            case "时":
+                return String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+            case "分":
+                return String.valueOf(Calendar.getInstance().get(Calendar.MINUTE));
+            case "秒":
+                return String.valueOf(Calendar.getInstance().get(Calendar.SECOND));
+            case "日":
+                return String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+            case "月":
+                return String.valueOf(Calendar.getInstance().get(Calendar.MONTH)+1);
+            case "年":
+                return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+            case "implode":
+            case "字符串拼接":
+                String[] strList = lis.split(",");
+                String[] newList = new String[strList.length];
+                for(int i = 0;i < strList.length;i++){
+                    String newr = checkCirculate(strList[i],p);
+                    newList[i] = (newr.equals("none") ? strList[i] : newr);
+                }
+                return plugin.implode("",newList);
             default:
                 return "";
         }
@@ -638,5 +814,43 @@ public class WTaskAPI {
             functionList.put(ls[0],ls[1]);
         }
         return functionList;
+    }
+
+    public int getRandomNum(int min, int max){
+        Random rdm = new Random();
+        return rdm.nextInt(max-min+1)+min;
+    }
+
+    public String executePlus(String origin){
+        if(origin.contains("{+}")){
+            return "{+}";
+        }
+        else if(origin.contains("{-}")){
+            return "{-}";
+        }
+        else if(origin.contains("{*}")){
+            return "{*}";
+        }
+        else if(origin.contains("/")){
+            return "{/}";
+        }
+        else{
+            return "none";
+        }
+    }
+
+    public String cal(String mins, String mins2, String fuhao){
+        switch(fuhao){
+            case "{+}":
+                return String.valueOf(Float.parseFloat(mins) + Float.parseFloat(mins2));
+            case "{-}":
+                return String.valueOf(Float.parseFloat(mins) - Float.parseFloat(mins2));
+            case "{*}":
+                return String.valueOf(Float.parseFloat(mins) * Float.parseFloat(mins2));
+            case "{/}":
+                return String.valueOf(Float.parseFloat(mins)/Float.parseFloat(mins2));
+            default:
+                return "0";
+        }
     }
 }

@@ -2,7 +2,6 @@ package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.NormalTaskCommand;
-import cn.nukkit.level.generator.Normal;
 import cn.nukkit.plugin.PluginBase;
 
 import java.io.File;
