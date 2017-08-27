@@ -2,6 +2,9 @@ package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.NormalTaskCommand;
+import cn.nukkit.Player;
+import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.plugin.PluginBase;
 
 import java.io.File;
@@ -80,6 +83,10 @@ public class WTask extends PluginBase {
     {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("Config-Version",1);
+        map.put("op默认权限",255);
+        map.put("玩家默认权限",5);
+        map.put("普通任务文件格式","cc");
+        map.put("普通任务默认权限",1);
         this.setting = new Config(this.getDataFolder().getPath() + "/config.yml",Config.YAML);
         this.setting.setDefault((LinkedHashMap<String, Object>) map);
         this.setting.save();
@@ -134,5 +141,15 @@ public class WTask extends PluginBase {
             aa.append(chars).append(sss);
         }
         return aa.toString();
+    }
+    public boolean getPerm(Player p, String perm){
+        int permission = Integer.parseInt(perm);
+        if(p.isOp()){
+            return permission <= this.setting.getInt("op默认权限");
+        }
+        if(this.playerPerm.exists(p.getName().toLowerCase())){
+            return permission <= this.playerPerm.getInt(p.getName().toLowerCase());
+        }
+        return permission <= this.setting.getInt("玩家默认权限");
     }
 }

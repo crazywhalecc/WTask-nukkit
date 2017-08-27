@@ -1,7 +1,10 @@
 package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.tasks.DelayedTask;
+import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
+import cn.nukkit.Server;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
@@ -10,7 +13,6 @@ import money.Money;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.Time;
 import java.util.*;
 
 /**
@@ -19,10 +21,9 @@ import java.util.*;
 public class WTaskAPI {
 
     public WTask plugin = null;
-    private Map<String, String> mode = new LinkedHashMap<>();
+    public Map<String, String> mode = new LinkedHashMap<>();
 
-    public WTaskAPI(WTask plugin)
-    {
+    public WTaskAPI(WTask plugin){
         this.plugin = plugin;
     }
 
@@ -231,6 +232,12 @@ public class WTaskAPI {
 
     public void preNormalTask(String taskname, Player p)
     {
+        if(this.getTaskData(taskname).containsKey("权限")){
+            if(!this.plugin.getPerm(p,(String) this.getTaskData(taskname).get("权限"))){
+                p.sendMessage(TextFormat.RED + "对不起，你没有权限运行本功能！");
+                return;
+            }
+        }
         ArrayList<Map<String, String>> lineData = prepareTask(taskname);
         plugin.normalTaskList.put(taskname,lineData);
         boolean r = this.runNormalTask(taskname, p, 0);
@@ -393,6 +400,12 @@ public class WTaskAPI {
                 case "延迟":
                     this.plugin.getServer().getScheduler().scheduleDelayedTask(new DelayedTask(this.plugin,p,taskname,ID+1),Integer.parseInt(currentMap.get("function"))*20);
                     return true;
+                case "daily-mode-on":
+                    break;
+                case "daily-mode-check":
+                    String rs = t.checkFinish(currentMap.get("function"),taskname,p);
+
+                    break;
                 default:
                     String r = defaultFunction(t,currentMap);
                     String[] newr = r.split(":");
@@ -791,7 +804,7 @@ public class WTaskAPI {
     public void sendMsgPacket(String msg, Player p, int boy)
     {
         TextPacket pk = new TextPacket();
-        pk.message = msg;
+        pk.message = this.msgs(msg,p);
         switch(boy)
         {
             case 0:
@@ -837,6 +850,53 @@ public class WTaskAPI {
         else{
             return "none";
         }
+    }
+
+    public String msgs(String msg){
+        return msgs(msg,null);
+    }
+
+    public String msgs(String msg, Player p){
+        msg = msg.replace("{tps}",String.valueOf(Server.getInstance().getTicksPerSecondAverage()));
+        int uptime = (new BigDecimal((new Date()).getTime() - Nukkit.START_TIME)).intValue();
+        uptime = uptime/60;
+        msg = msg.replace("{runtime}",String.valueOf(uptime));
+        msg = msg.replace("{load}",String.valueOf(Server.getInstance().getTickUsageAverage()));
+        String time = String.valueOf(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) + ":" + String.valueOf(Calendar.getInstance().get(Calendar.MINUTE)) + ":" + String.valueOf(Calendar.getInstance().get(Calendar.SECOND));
+        msg = msg.replace("{time}",time);
+        msg = msg.replace("{online}",String.valueOf(Server.getInstance().getOnlinePlayers().size()));
+        if(p != null){
+            switch(plugin.getEconomyType()){
+                case "EconomyAPI":
+                    msg = msg.replace("{money}",String.valueOf(EconomyAPI.getInstance().myMoney(p)));
+                    break;
+                case "Money":
+                    msg = msg.replace("{money}",String.valueOf(Money.getInstance().getMoney(p)));
+                    break;
+                default:
+                    break;
+            }
+            Item item = p.getInventory().getItemInHand();
+            msg = msg.replace("{itemid}",String.valueOf(item.getId()));
+            msg = msg.replace("{itemdamage}",String.valueOf(item.getDamage()));
+            msg = msg.replace("%p",p.getName());
+            msg = msg.replace("{name}",p.getName());
+            msg = msg.replace("{hp}",String.valueOf(p.getHealth()));
+            msg = msg.replace("{mhp}",String.valueOf(p.getMaxHealth()));
+            msg = msg.replace("{level}",p.getLevel().getFolderName());
+            msg = msg.replace("{food}",String.valueOf(p.getFoodData().getLevel()));
+            msg = msg.replace("{ip}",p.getAddress());
+            msg = msg.replace("{port}",String.valueOf(p.getPort()));
+            String x = String.valueOf((new BigDecimal(p.x)).intValue());
+            String y = String.valueOf((new BigDecimal(p.y)).intValue());
+            String z = String.valueOf((new BigDecimal(p.z)).intValue());
+            msg = msg.replace("{x}",x);
+            msg = msg.replace("{y}",y);
+            msg = msg.replace("{z}",z);
+        }
+        msg = msg.replace("%n","\n");
+        msg = msg.replace("+"," ");
+        return msg;
     }
 
     public String cal(String mins, String mins2, String fuhao){

@@ -7,7 +7,6 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.ConsoleCommandSender;
 
-import java.io.Console;
 import java.util.Map;
 
 /**

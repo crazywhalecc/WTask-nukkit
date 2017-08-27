@@ -12,9 +12,7 @@ import me.onebone.economyapi.EconomyAPI;
 import money.Money;
 
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by whale on 2017/7/23.
@@ -266,6 +264,89 @@ public class NormalTaskAPI implements TaskBase{
         }
     }
 
+    public String checkFinish(String it,String tn, Player p){
+        if(p == null){
+            return "false:未检测到玩家！";
+        }
+        String[] its = it.split("\\|");
+        boolean status = false;
+        Map<String, Object> list = (Map<String, Object>)this.api.plugin.daily.get("普通任务");
+        if(!list.containsKey(tn)){
+            list = new LinkedHashMap<>();
+        }
+        else{
+            list = (Map<String, Object>) list.get(tn);
+        }
+        String name = p.getName().toLowerCase();
+        String mode = this.api.mode.get(tn);
+        String[] modes = mode.split(":");
+        switch(modes[0]){
+            case "false":
+                break;
+            case "once":
+                if(list.containsKey(name)){
+                    status = true;
+                    break;
+                }
+                else{
+                    break;
+                }
+            case "multi-day":
+                if(list.containsKey(name)){
+                    int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+                    int pastday = (Integer) ((Map<String, Object>) list.get(name)).get("date");
+                    if(day != pastday){
+                        break;
+                    }
+                    else{
+                        int times = (Integer) ((Map<String, Object>) list.get(name)).get("times");
+                        if(times >= Integer.parseInt(modes[1])){
+                            status = true;
+                            break;
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+                else{
+                    break;
+                }
+            case "single-day":
+                if(list.containsKey(name)){
+                    Long currentTime = (new Date()).getTime();
+                    Long finishTime = (Long) ((Map<String, Object>) list.get(name)).get("date");
+                    Long upgrade = ((Long) ((Map<String, Object>) list.get(name)).get("times"))*86400;
+                    if((upgrade + finishTime) >= currentTime){
+                        status = true;
+                    }
+                    break;
+                }
+                else{
+                    break;
+                }
+            case "limit-time":
+                if(list.containsKey(name)){
+                    int times = (Integer) ((Map<String, Object>) list.get(name)).get("times");
+                    if(times >= Integer.parseInt(modes[1])){
+                        status = true;
+                    }
+                    break;
+                }
+                else{
+                    break;
+                }
+            default:
+                break;
+        }
+        if(status){
+            return this.doSubCommand(its[0]);
+        }
+        else{
+            return this.doSubCommand(its[1]);
+        }
+    }
+
     public String addItem(String it){
         String[] its = it.split("\\|");
         String[] items = its[1].split(",");
@@ -322,6 +403,36 @@ public class NormalTaskAPI implements TaskBase{
         effect.setAmplifier(level);
         effect.setDuration(sec);
         player.addEffect(effect);
+        return "true";
+    }
+
+    public String doSubCommand(String cmdd){
+        String[] multiTask = cmdd.split(",");
+        for(String multi : multiTask){
+            String[] cmd = multi.split("\\.");
+            switch(cmd[0]){
+                case "跳转":
+                case "jump":
+                    return "jump-" + cmd[1];
+                case "消息":
+                case "msg":
+                    api.sendMsgPacket(cmd[1],this.player,0);
+                    break;
+                case "提示":
+                case "tip":
+                    api.sendMsgPacket(cmd[1],player,1);
+                    break;
+                case "底部":
+                case "popup":
+                    api.sendMsgPacket(cmd[1],player,2);
+                    break;
+                case "pass":
+                    return "true";
+                case "end":
+                case "结束":
+                    return "end";
+            }
+        }
         return "true";
     }
 }
