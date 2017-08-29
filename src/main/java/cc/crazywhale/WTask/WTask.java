@@ -3,8 +3,6 @@ package cc.crazywhale.WTask;
 import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.NormalTaskCommand;
 import cn.nukkit.Player;
-import cn.nukkit.Server;
-import cn.nukkit.command.CommandSender;
 import cn.nukkit.plugin.PluginBase;
 
 import java.io.File;

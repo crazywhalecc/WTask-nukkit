@@ -5,6 +5,7 @@ import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.sound.*;
@@ -496,7 +497,7 @@ public class NormalTaskAPI implements TaskBase{
     }
 
     public String manageConfig(String it) {
-        String[] its = it.split("|");
+        String[] its = it.split("\\|");
         switch(its[0]){
             case "创建":
                 String filename = api.executeReturnData(its[1],this.player);
@@ -558,7 +559,6 @@ public class NormalTaskAPI implements TaskBase{
                 }
                 else{
                     String itemName = api.executeReturnData(its[2],player);
-                    String inside = api.executeReturnData(its[3],player);
                     Config cfg2;
                     if(!api.plugin.customConfig.containsKey(filename5)){
                         cfg2 = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename5 + ".yml",Config.YAML);
@@ -575,7 +575,86 @@ public class NormalTaskAPI implements TaskBase{
         }
     }
 
+    public String makeExplosion(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],player);
+        its[1] = api.executeReturnData(its[1],player);
+        Position pos = this.executePosition(its[0]);
+        Explosion boom = new Explosion(pos,Double.parseDouble(its[1]),null);
+        if(boom.explodeA()) boom.explodeB();
+        return "true";
+    }
+
+    public String checkInventory(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],player);
+        String[] items = its[0].split(",");
+        boolean res = false;
+        for(String item : items){
+            String[] itemdd = item.split("-");
+            int cnt = 0;
+            for(Map.Entry<Integer, Item> entry : player.getInventory().getContents().entrySet()){
+                if(entry.getValue().getId() == Integer.parseInt(itemdd[0]) && entry.getValue().getDamage() == Integer.parseInt(itemdd[1])){
+                    cnt += entry.getValue().getCount();
+                }
+            }
+            if(cnt >= Integer.parseInt(itemdd[2])){
+                res = true;
+            }
+            else{
+                res = false;
+                break;
+            }
+        }
+        if(res){
+            return this.doSubCommand(its[1],its[0]);
+        }
+        else{
+            return this.doSubCommand(its[2]);
+        }
+    }
+
+    public String checkItemInHand(String it){
+        String[] its = it.split("\\|");
+        if(player == null){
+            return "false:玩家不存在！";
+        }
+        boolean result;
+        Item item = player.getInventory().getItemInHand();
+        its[1] = api.executeReturnData(its[1],player);
+        String all = String.valueOf(item.getId()) + "-" + item.getDamage() + "-" + item.getCount();
+        switch(its[0]){
+            case "检查all":
+                result = its[1].equals(all);
+                break;
+            case "检查id和特殊值":
+                result = its[1].equals(String.valueOf(item.getId()) + "-" + item.getDamage());
+                break;
+            case "检查id":
+                result = its[1].equals(String.valueOf(item.getId()));
+                break;
+            case "检查特殊值":
+                result = its[1].equals(String.valueOf(item.getDamage()));
+                break;
+            case "检查数量":
+                result = its[1].equals(String.valueOf(item.getCount()));
+                break;
+            default:
+                return "false:传入了未知子方法！";
+        }
+        if(result){
+            return doSubCommand(its[2],all);
+        }
+        else{
+            return doSubCommand(its[3]);
+        }
+    }
+
     public String doSubCommand(String cmdd){
+        return doSubCommand(cmdd,"");
+    }
+
+    public String doSubCommand(String cmdd, String extraData){
         String[] multiTask = cmdd.split(",");
         for(String multi : multiTask){
             String[] cmd = multi.split("\\.");
@@ -600,6 +679,39 @@ public class NormalTaskAPI implements TaskBase{
                 case "end":
                 case "结束":
                     return "end";
+                case "delitem":
+                    if(extraData.equals("")){
+                        return "false:非checkitem方式禁止使用delitem功能！";
+                    }
+                    String[] s = extraData.split(",");
+                    for(String item : s){
+                        String[] pli = item.split("-");
+                        String r = this.removeItem(this.player,new Item(Integer.parseInt(pli[0]),Integer.parseInt(pli[1]),Integer.parseInt(pli[2])));
+                        if(!r.equals("true")){
+                            return r;
+                        }
+                    }
+                    return "true";
+            }
+        }
+        return "true";
+    }
+
+    public String removeItem(Player p, Item item){
+        int getCount = item.getCount();
+        if(getCount <= 0){
+            return "false:传入数量出错！";
+        }
+        for(int index = 0; index < p.getInventory().getSize(); index++){
+            Item setItem = p.getInventory().getItem(index);
+            if(setItem.getId() == item.getId() && setItem.getDamage() == item.getDamage()){
+                if(getCount >= setItem.getCount()){
+                    getCount -= setItem.getCount();
+                    p.getInventory().setItem(index, Item.get(Item.AIR,0,1));
+                }
+                else{
+                    p.getInventory().setItem(index, Item.get(item.getId(),item.getDamage(),setItem.getCount() - getCount));
+                }
             }
         }
         return "true";

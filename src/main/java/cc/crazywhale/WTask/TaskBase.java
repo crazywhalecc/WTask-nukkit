@@ -1,5 +1,6 @@
 package cc.crazywhale.WTask;
 
+import cn.nukkit.Player;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Position;
 
@@ -24,4 +25,14 @@ interface TaskBase {
     String setCustomSkin(String it);
     void setPermission(int perm);
     String addEffect(String it);
+    String checkFinish(String it,String tn, Player p);
+    String makeSound(String it);
+    String setNameTag(String it);
+    String manageConfig(String it);
+    String makeExplosion(String it);
+    String checkInventory(String it);
+    String doSubCommand(String it);
+    String doSubCommand(String it, String extraData);
+    String removeItem(Player p, Item item);
+    String checkItemInHand(String it);
 }
