@@ -32,6 +32,7 @@ public class WTask extends PluginBase {
 
     public Map<String, Map<String, String>> privateTempData;
     public Map<String, String> publicTempData;
+    public Map<String, Config> customConfig;
 
     Map<String, Object> taskData;
     Map<String, ArrayList<Map<String, String>>>normalTaskList;

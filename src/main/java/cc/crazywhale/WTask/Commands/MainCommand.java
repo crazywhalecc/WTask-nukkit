@@ -28,9 +28,12 @@ public class MainCommand extends Command {
 
         this.plugin = plugin;
         this.setPermission((String) desc.get("permission"));
-        mainHelp.add("§6=====WTask=====");
+        mainHelp.add("§6======WTask主菜单(§a1 §6/ §e2§6)======\n§7*  当前版本: " + plugin.getDescription().getVersion());
+        mainHelp.add("§7*  翻页: /" + cmd + " help [页数]");
+        mainHelp.add("§e*  输入/"+cmd+" info 来查看当前版本的更新日志哦～");
         mainHelp.add("§a/" + c + " 添加任务: §b添加一个普通任务");
         mainHelp.add("§a/" + c + " reload: §b重载WTask");
+
     }
 
     public boolean execute(CommandSender sender, String ssss, String[] args)

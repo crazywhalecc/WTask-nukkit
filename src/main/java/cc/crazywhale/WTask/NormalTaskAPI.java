@@ -7,10 +7,12 @@ import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.sound.*;
 import cn.nukkit.potion.Effect;
 import me.onebone.economyapi.EconomyAPI;
 import money.Money;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -21,6 +23,7 @@ public class NormalTaskAPI implements TaskBase{
 
     public Player player = null;
     public WTaskAPI api = null;
+
 
     public NormalTaskAPI(Player p,WTaskAPI api)
     {
@@ -404,6 +407,172 @@ public class NormalTaskAPI implements TaskBase{
         effect.setDuration(sec);
         player.addEffect(effect);
         return "true";
+    }
+
+    public String makeSound(String it){
+        if(player == null){
+            return "false:玩家不存在！";
+        }
+        Player p = this.player;
+        Level l = player.getLevel();
+        String[] its = it.split(",");
+        for(String pick : its){
+            switch(pick){
+                case "1":
+                    l.addSound(new AnvilFallSound(player));
+                    break;
+                case "2":
+                    l.addSound(new AnvilUseSound(player));
+                    break;
+                case "4":
+                    l.addSound(new BlazeShootSound(player));
+                    break;
+                case "5":
+                    l.addSound(new ButtonClickSound(player));
+                    break;
+                case "6":
+                    l.addSound(new DoorBumpSound(player));
+                    break;
+                case "7":
+                    l.addSound(new DoorCrashSound(player));
+                    break;
+                case "8":
+                    l.addSound(new DoorSound(player));
+                    break;
+                case "9":
+                    l.addSound(new EndermanTeleportSound(player));
+                    break;
+                case "10":
+                    l.addSound(new ExplodeSound(player));
+                    break;
+                case "11":
+                    l.addSound(new ExperienceOrbSound(p));
+                    break;
+                case "12":
+                    l.addSound(new FizzSound(p));
+                    break;
+                case "13":
+                    l.addSound(new GhastShootSound(p));
+                    break;
+                case "14":
+                    l.addSound(new GhastSound(p));
+                    break;
+                case "15":
+                    l.addSound(new LaunchSound(p));
+                    break;
+                case "16":
+                    api.plugin.getLogger().warning("请使用乐谱来播放音符盒声音！");
+                    break;
+                case "17":
+                    l.addSound(new PopSound(p));
+                    break;
+                case "18":
+                    api.plugin.getLogger().warning("此声音在nk端不再支持！");
+                    break;
+                case "19":
+                    l.addSound(new SplashSound(p));
+                    break;
+                case "20":
+                    l.addSound(new TNTPrimeSound(p));
+                    break;
+                case "21":
+                    l.addSound(new ClickSound(p));
+                    break;
+                case "22":
+                    l.addSound(new PistonInSound(p));
+                    break;
+                case "23":
+                    l.addSound(new PistonOutSound(p));
+                    break;
+            }
+        }
+        return "true";
+    }
+
+    public String setNameTag(String it){
+        it = api.executeReturnData(it,this.player);
+        this.player.setNameTag(api.msgs(it,player));
+        return "true";
+    }
+
+    public String manageConfig(String it) {
+        String[] its = it.split("|");
+        switch(its[0]){
+            case "创建":
+                String filename = api.executeReturnData(its[1],this.player);
+                api.plugin.customConfig.put(filename,new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename + ".yml",Config.YAML));
+                return "true";
+            case "写入":
+                String filename2 = api.executeReturnData(its[1],this.player);
+                File file = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename2+".yml");
+                if(!file.exists()){
+                    return "false:文件不存在！";
+                }
+                else{
+                    String itemName = api.executeReturnData(its[2],player);
+                    String inside = api.executeReturnData(its[3],player);
+                    Config cfg;
+                    if(!api.plugin.customConfig.containsKey(filename2)){
+                        cfg = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename2 + ".yml",Config.YAML);
+                    }
+                    else{
+                        cfg = api.plugin.customConfig.get(filename2);
+                    }
+                    cfg.set(itemName,inside);
+                    cfg.save();
+                    return "true";
+                }
+            case "是否存在文件":
+                String filename3 = api.executeReturnData(its[1],this.player);
+                File file2 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename3 + ".yml");
+                if(file2.exists()){
+                    return this.doSubCommand(its[2]);
+                }
+                else{
+                    return this.doSubCommand(its[3]);
+                }
+            case "是否存在":
+                String filename4 = api.executeReturnData(its[1],this.player);
+                File file3 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename4 + ".yml");
+                if(!file3.exists()){
+                    return this.doSubCommand(its[4]);
+                }
+                Config cfg;
+                if(!api.plugin.customConfig.containsKey(filename4)){
+                    cfg = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename4 + ".yml",Config.YAML);
+                }
+                else{
+                    cfg = api.plugin.customConfig.get(filename4);
+                }
+                if(cfg.exists(its[2])){
+                    return this.doSubCommand(its[3]);
+                }
+                else{
+                    return this.doSubCommand(its[4]);
+                }
+            case "删除":
+                String filename5 = api.executeReturnData(its[1],this.player);
+                File file5 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename5+".yml");
+                if(!file5.exists()){
+                    return "false:文件不存在！";
+                }
+                else{
+                    String itemName = api.executeReturnData(its[2],player);
+                    String inside = api.executeReturnData(its[3],player);
+                    Config cfg2;
+                    if(!api.plugin.customConfig.containsKey(filename5)){
+                        cfg2 = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename5 + ".yml",Config.YAML);
+                    }
+                    else{
+                        cfg2 = api.plugin.customConfig.get(filename5);
+                    }
+                    cfg2.remove(itemName);
+                    cfg2.save();
+                    return "true";
+                }
+            default:
+                return "false:错误的选项！";
+        }
     }
 
     public String doSubCommand(String cmdd){

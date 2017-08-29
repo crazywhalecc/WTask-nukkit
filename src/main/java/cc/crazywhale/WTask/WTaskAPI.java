@@ -4,7 +4,6 @@ import cc.crazywhale.WTask.tasks.DelayedTask;
 import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
-import cn.nukkit.command.CommandSender;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
@@ -371,6 +370,79 @@ public class WTaskAPI {
         return true;
     }
 
+    public boolean setNormalTaskDaily(String tn, Player p){
+        Map<String, Map<String, Object>> map = (Map<String, Map<String, Object>>) this.plugin.daily.get("普通任务");
+        Map<String, Object> map2 = map.containsKey(tn) ? map.get(tn) : new LinkedHashMap<String, Object>();
+        String name = p.getName().toLowerCase();
+        String[] mode = this.mode.get(tn).split(":");
+        switch(mode[0]){
+            case "false":
+                return true;
+            case "once":
+                Map<String, Object> data = new LinkedHashMap<>();
+                data.put("cid",p.getClientSecret());
+                data.put("date",Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+                data.put("times",1);
+                map2.put(name,data);
+                break;
+            case "multi-day":
+                if(map2.containsKey(name)){
+                    if(((Integer) ((Map<String, Object>) map2.get(name)).get("date")) != Calendar.getInstance().get(Calendar.DAY_OF_MONTH)){
+                        Map<String, Object> data2 = new LinkedHashMap<>();
+                        data2.put("cid",p.getClientSecret());
+                        data2.put("date",Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+                        data2.put("times",1);
+                        map2.put(name,data2);
+                    }
+                    else{
+                        Map<String, Object> data2 = (Map<String, Object>) map2.get(name);
+                        data2.put("times",(((Integer) data2.get("times")) + 1));
+                        map2.put(name,data2);
+                    }
+                }
+                else{
+                    Map<String, Object> data2 = new LinkedHashMap<>();
+                    data2.put("cid",p.getClientSecret());
+                    data2.put("date",Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+                    data2.put("times",1);
+                    map2.put(name,data2);
+                }
+                break;
+            case "single-day":
+                if(map2.containsKey(name)){
+                    Map<String, Object> data2 = (Map<String, Object>) map2.get(name);
+                    data2.put("date",(new Date()).getTime());
+                    map2.put(name,data2);
+                }
+                else{
+                    Map<String, Object> data2 = new LinkedHashMap<>();
+                    data2.put("cid",p.getClientSecret());
+                    data2.put("date",(new Date()).getTime());
+                    data2.put("times",mode[1]);
+                    map2.put(name,data2);
+                }
+                break;
+            case "limit-time":
+                if(map2.containsKey(name)){
+                    Map<String, Object> data2 = (Map<String, Object>) map2.get(name);
+                    data2.put("times",(((Integer) data2.get("times")) + 1));
+                    map2.put(name,data2);
+                }
+                else{
+                    Map<String, Object> data2 = new LinkedHashMap<>();
+                    data2.put("cid",p.getClientSecret());
+                    data2.put("date",(new Date()).getTime());
+                    data2.put("times",1);
+                    map2.put(name,data2);
+                }
+                break;
+        }
+        map.put(tn,map2);
+        this.plugin.daily.set("普通任务",map);
+        this.plugin.daily.save();
+        return true;
+    }
+
     public boolean runNormalTask(String taskname, Player p, int ID, boolean delayStep){
         if(!delayStep){
             ID=0;
@@ -404,8 +476,31 @@ public class WTaskAPI {
                     break;
                 case "daily-mode-check":
                     String rs = t.checkFinish(currentMap.get("function"),taskname,p);
-
+                    String[] newss = rs.split(":");
+                    switch(newss[0]){
+                        case "true":
+                            break;
+                        case "false":
+                            plugin.getLogger().warning("在运行任务：" + taskname + " 第 " + (ID+1) + " 号时出现了错误！\n错误信息：" + newss[1]);
+                            break;
+                        case "end":
+                            ID = 10000;
+                            break;
+                        default:
+                            String[] pps = newss[0].split("-");
+                            if(pps.length == 2){
+                                ID = Integer.parseInt(pps[1]) - 2;
+                            }
+                    }
                     break;
+                case "daily-mode-setfinish":
+                    boolean resultf = this.setNormalTaskDaily(taskname,p);
+                    if(resultf)
+                        break;
+                    else{
+                        plugin.getLogger().warning("");
+                        break;
+                    }
                 default:
                     String r = defaultFunction(t,currentMap);
                     String[] newr = r.split(":");
@@ -425,6 +520,7 @@ public class WTaskAPI {
                                 break;
                             }
                     }
+                    break;
             }
             ID++;
         }
@@ -562,6 +658,15 @@ public class WTaskAPI {
                 }
             case "添加效果":
                 return t.addEffect(currentMap.get("function"));
+            case "声音":
+            case "sound":
+                return t.makeSound(currentMap.get("function"));
+            case "设置名片":
+            case "setnametag":
+                return t.setNameTag(currentMap.get("function"));
+            case "配置文件":
+            case "config":
+                return t.manageConfig(currentMap.get("function"));
             default:
                 return "false:未知类型的功能！";
         }
@@ -850,10 +955,6 @@ public class WTaskAPI {
         else{
             return "none";
         }
-    }
-
-    public String msgs(String msg){
-        return msgs(msg,null);
     }
 
     public String msgs(String msg, Player p){
