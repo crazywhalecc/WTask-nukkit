@@ -13,6 +13,8 @@ import money.Money;
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by whale on 2017/7/22.
@@ -26,7 +28,7 @@ public class WTaskAPI {
         this.plugin = plugin;
     }
 
-    @SuppressWarnings("unchecked")
+
     public boolean loadTasks() {
         plugin.taskData.clear();
         File[] files = (new File(plugin.getDataFolder(), "tasks/")).listFiles();
@@ -40,7 +42,8 @@ public class WTaskAPI {
                 try {
                     BufferedReader reader = new BufferedReader(new FileReader(file));
                     while ((qw = reader.readLine()) != null) {
-                        line.add(qw);
+                        if (!qw.equals(""))
+                            line.add(qw);
                     }
                 } catch (Exception e) {
                     return false;
@@ -50,20 +53,19 @@ public class WTaskAPI {
         line.add("&&eof");
         //for(String sss : line){ System.out.println(sss);}
         for (int id = 0; id < line.size(); id++) {
-            if (line.get(id).equals("")) {
-            } else if (line.get(id).substring(0, 1).equals("[")) {
+            if (line.get(id).substring(0, 1).equals("[")) {
                 String executeMain = line.get(id).substring(1, line.get(id).lastIndexOf("]"));
                 //System.out.println(executeMain);
                 String[] subMain = executeMain.split(":");
                 String taskname = subMain[1];
                 switch (subMain[0]) {
                     case "普通任务":
-                        Map<String, Object> taskIns = this.subLoadTasks(line, id);
+                        Map<String, ArrayList<String>> taskIns = this.subLoadTasks(line, id);
                         if (taskIns == null) {
                             plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
                             return false;
                         }
-                        Map<String, String> ss = executeFunctions((ArrayList<String>) taskIns.get("function"));
+                        Map<String, String> ss = executeFunctions(taskIns.get("function"));
                         Map<String, Object> task = new LinkedHashMap<>();
                         task.putAll(ss);
                         task.put("type", subMain[0]);
@@ -77,7 +79,7 @@ public class WTaskAPI {
                             plugin.getLogger().critical("任务解析出错！请检查动作任务是否指定了类型和开服激活设置的填写！");
                             return false;
                         }
-                        Map<String, Object> taskIns2 = this.subLoadTasks(line, id);
+                        Map<String, ArrayList<String>> taskIns2 = this.subLoadTasks(line, id);
                         if (taskIns2 == null) {
                             plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
                             return false;
@@ -95,7 +97,7 @@ public class WTaskAPI {
                             plugin.getLogger().critical("任务解析出错！请检查循环任务是否指定了循环周期和开服激活设置的填写！");
                             return false;
                         }
-                        Map<String, Object> taskIns3 = subLoadTasks(line, id);
+                        Map<String, ArrayList<String>> taskIns3 = subLoadTasks(line, id);
                         if (taskIns3 == null) {
                             plugin.getLogger().critical("任务解析出错！请检查： " + line.get(id));
                             return false;
@@ -116,7 +118,7 @@ public class WTaskAPI {
         return true;
     }
 
-    private Map<String, Object> subLoadTasks(ArrayList<String> line, int id) {
+    private Map<String, ArrayList<String>> subLoadTasks(ArrayList<String> line, int id) {
         int finalId = -1;
         //System.out.println("ssss");
         ArrayList<String> taskline = new ArrayList<>();
@@ -156,7 +158,7 @@ public class WTaskAPI {
                 function.add(line.get(s).substring(1, fpos));
             }
         }
-        Map<String, Object> mao = new LinkedHashMap<>();
+        Map<String, ArrayList<String>> mao = new LinkedHashMap<>();
         mao.put("taskline", taskline);
         mao.put("function", function);
         return mao;
@@ -203,13 +205,13 @@ public class WTaskAPI {
         return t != null;
     }
 
+
     Map<String, Object> getTaskData(String taskname) {
         if (plugin.taskData.containsKey(taskname)) {
             return (Map<String, Object>) plugin.taskData.get(taskname);
         }
         return null;
     }
-
 
     /**
      * @param taskname: haha
@@ -234,6 +236,7 @@ public class WTaskAPI {
             p.sendMessage(TextFormat.RED + "任务运行失败！");
         }
     }
+
 
     public ArrayList<Map<String, String>> prepareTask(String taskname) {
         Map<String, Object> data = getTaskData(taskname);
@@ -300,7 +303,7 @@ public class WTaskAPI {
         }
         String[] line = ((String) data.get("daily-mode")).split(";");
         mode.put(taskname, "false");
-        Map<String, Object> trueList = (Map<String, Object>) plugin.daily.get("普通任务");
+        Map<String, Object> trueList = plugin.daily.getMap("普通任务");
         if (!trueList.containsKey(taskname)) {
             trueList.put(taskname, new LinkedHashMap<String, Object>());
             plugin.daily.set("普通任务", trueList);
@@ -310,14 +313,17 @@ public class WTaskAPI {
             return true;
         }
         ArrayList<Map<String, String>> ar = new ArrayList<>();
-        for (int i = 0; i < line.length; i++) {
-            String[] temp = getF1(line[i]).split("\\|");
+        int i = 0;
+        while (i < line.length) {
+            String aLine = line[i];
+            String[] temp = getF1(aLine).split("\\|");
             Map<String, String> map = new LinkedHashMap<>();
             map.put("type", temp[0]);
             ArrayList<String> ss = new ArrayList<>();
             ss.addAll(Arrays.asList(temp).subList(1, temp.length));
             map.put("function", implode("|", ss));
             ar.add(map);
+            i++;
         }
         int ID = 0;
         while (ID < ar.size()) {
@@ -652,7 +658,35 @@ public class WTaskAPI {
             case "检查手持物品":
             case "checkiteminhand":
                 return t.checkItemInHand(currentMap.get("function"));
-                // TODO: next project
+            case "检查金钱":
+            case "checkmoney":
+                return t.checkMoney(currentMap.get("function"));
+            case "比较":
+            case "compare":
+                return t.checkCount(currentMap.get("function"));
+            case "比较浮点数":
+            case "comparedouble":
+                return t.checkCountDouble(currentMap.get("function"));
+            case "检查游戏模式":
+            case "checkgm":
+                return t.checkGm(currentMap.get("function"));
+            case "掉落物品":
+            case "dropitem":
+                return t.dropItem(currentMap.get("function"));
+            case "概率":
+                return t.calculatePercentTask(currentMap.get("function"));
+            case "block":
+            case "方块":
+
+            case "写标签":
+
+            case "缓存":
+
+            case "c":
+
+            case "比较字符串":
+
+                //TODO
             default:
                 return "false:未知类型的功能！";
         }
@@ -662,7 +696,7 @@ public class WTaskAPI {
         return Integer.parseInt(line);
     }
 
-    @SuppressWarnings("unchecked")
+
     public String executeReturnData(String line, Player p) {
         if (!line.substring(0, 1).equals("(")) {
             return line;
@@ -980,5 +1014,75 @@ public class WTaskAPI {
             default:
                 return "0";
         }
+    }
+
+    public String executeCompare(String it) {
+        if(it.contains("{大于}")){
+            return "{大于}";
+        }
+        else if(it.contains("{小于}")){
+            return "{小于}";
+        }
+        else if(it.contains("{等于}")){
+            return "{等于}";
+        }
+        else if(it.contains("{大于等于}")){
+            return "{大于等于}";
+        }
+        else if(it.contains("{小于等于}")){
+            return "{小于等于}";
+        }
+        else if(it.contains("{比较字符串}") || it.contains("{str_compare}")){
+            return "{比较字符串}";
+        }
+        else{
+            return "";
+        }
+    }
+
+    public boolean calCompare(String[] number, String fuhao){
+        return calCompare(number,fuhao,false);
+    }
+
+    public boolean calCompare(String[] number, String fuhao, boolean containDouble){
+        if(containDouble){
+            switch(fuhao){
+                case "{大于}":
+                    return Double.parseDouble(number[0]) > Double.parseDouble(number[1]);
+                case "{小于}":
+                    return Double.parseDouble(number[0]) < Double.parseDouble(number[1]);
+                case "{大于等于}":
+                    return Double.parseDouble(number[0]) >= Double.parseDouble(number[1]);
+                case "{小于等于}":
+                    return Double.parseDouble(number[0]) <= Double.parseDouble(number[1]);
+                case "{等于}":
+                    return Double.parseDouble(number[0]) == Double.parseDouble(number[1]);
+            }
+        }
+        else {
+            switch (fuhao) {
+                case "{大于}":
+                    return Integer.parseInt(number[0]) > Integer.parseInt(number[1]);
+                case "{大于等于}":
+                    return Integer.parseInt(number[0]) >= Integer.parseInt(number[1]);
+                case "{小于}":
+                    return Integer.parseInt(number[0]) < Integer.parseInt(number[1]);
+                case "{小于等于}":
+                    return Integer.parseInt(number[0]) <= Integer.parseInt(number[1]);
+                case "{等于}":
+                    if (isDigit2(number[0]) && isDigit2(number[1])) {
+                        return Integer.parseInt(number[0]) == Integer.parseInt(number[1]);
+                    } else {
+                        return number[0].equals(number[1]);
+                    }
+            }
+        }
+        return false;
+    }
+
+    public boolean isDigit2(String strNum) {
+        Pattern pattern = Pattern.compile("[0-9]+");
+        Matcher matcher = pattern.matcher(strNum);
+        return matcher.matches();
     }
 }

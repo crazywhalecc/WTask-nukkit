@@ -23,8 +23,6 @@ public class WTask extends PluginBase {
     public Config mod;
     public Config daily;
     public Config customCommand;
-    private MainCommand mainCommand;
-    private NormalTaskCommand normalTaskCommand;
     private String economyType;
     public static WTask obj;
 
@@ -104,19 +102,21 @@ public class WTask extends PluginBase {
         customCommand = new Config(this.getDataFolder().getPath() + "/customCommands.json",Config.JSON);
     }
 
+    @SuppressWarnings("unchecked")
     private void registerSettings()
     {
         this.api = new WTaskAPI(this);
         Map<String, Object> desc = (Map<String, Object>) this.command.get("MainCommand");
         String maincmd = (String) desc.get("command");
-        this.mainCommand = new MainCommand(this,maincmd);
+        MainCommand mainCommand = new MainCommand(this, maincmd);
         String normalcmd = (String) ((Map<String, Object>) this.command.get("NormalTaskCommand")).get("command");
-        this.normalTaskCommand = new NormalTaskCommand(this,normalcmd);
-        this.getServer().getCommandMap().register("WTask", this.mainCommand);
-        this.getServer().getCommandMap().register("WTask",this.normalTaskCommand);
+        NormalTaskCommand normalTaskCommand = new NormalTaskCommand(this, normalcmd);
+        this.getServer().getCommandMap().register("WTask", mainCommand);
+        this.getServer().getCommandMap().register("WTask", normalTaskCommand);
     }
 
     /////////////////////API part
+    @SuppressWarnings("unchecked")
     public Map<String, Object> getCmdInfo(String cmd)
     {
         return (Map<String, Object>) this.command.get(cmd);
@@ -126,10 +126,12 @@ public class WTask extends PluginBase {
         return economyType;
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, String> getStringMap(Object p){
         return (Map<String, String>) p;
     }
 
+    @SuppressWarnings("unchecked")
     public static Map<String, Object> getObjectMap(Object p){
         return (Map<String, Object>) p;
     }

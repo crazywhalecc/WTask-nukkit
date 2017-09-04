@@ -2,7 +2,9 @@ package cc.crazywhale.WTask;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.Vector3;
 
 interface TaskBase {
     String sendTip(String it);
@@ -35,4 +37,12 @@ interface TaskBase {
     String doSubCommand(String it, String extraData);
     String removeItem(Player p, Item item);
     String checkItemInHand(String it);
+    String checkMoney(String it);
+    String checkCount(String it);
+    String checkCountDouble(String it);
+    String checkGm(String it);
+    String dropItem(String it);
+    String dropItems(Vector3 pos, String[] items, Level level);
+    boolean ItemPercent(String it);
+    String calculatePercentTask(String it);
 }

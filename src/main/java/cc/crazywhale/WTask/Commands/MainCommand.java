@@ -1,13 +1,11 @@
 package cc.crazywhale.WTask.Commands;
 
+import cc.crazywhale.WTask.Config;
 import cc.crazywhale.WTask.WTask;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -17,8 +15,8 @@ import java.util.Map;
 public class MainCommand extends Command {
 
     public WTask plugin;
-    public String cmd;
-    public ArrayList<String> mainHelp = new ArrayList<>();
+    private String cmd;
+    private ArrayList<String> mainHelp = new ArrayList<>();
 
     public MainCommand(WTask plugin,String c)
     {
@@ -33,7 +31,7 @@ public class MainCommand extends Command {
         mainHelp.add("§e*  输入/"+cmd+" info 来查看当前版本的更新日志哦～");
         mainHelp.add("§a/" + c + " 添加任务: §b添加一个普通任务");
         mainHelp.add("§a/" + c + " reload: §b重载WTask");
-
+        mainHelp.add("§a/" + c + " 创建配置文件: §b创建一个自定义的空白配置文件");
     }
 
     public boolean execute(CommandSender sender, String ssss, String[] args)
@@ -47,24 +45,6 @@ public class MainCommand extends Command {
         {
             switch(args[0])
             {
-                case "ss":
-                    try{
-                        File ss = new File(this.plugin.getDataFolder(), "default.cc");
-                        BufferedReader r = new BufferedReader(new FileReader(ss));
-                        String line;
-                        ArrayList<String> sLine = new ArrayList<>();
-                        while((line = r.readLine()) != null){
-                            sLine.add(line);
-                            sender.sendMessage(line);
-                        }
-                    }
-                    catch(Exception e){
-                        if(e instanceof FileNotFoundException)
-                            sender.sendMessage("文件不存在！");
-                        else
-                            sender.sendMessage("读取错误！");
-                    }
-                    break;
                     //BufferedReader r = new BufferedReader(new FileReader(new File(plugin.getDataFolder().getPath() + "default.cc")));
                 case "添加任务":
                     if(args.length == 1)
@@ -93,6 +73,20 @@ public class MainCommand extends Command {
                 case "exit":
                     this.unregister(this.plugin.getServer().getCommandMap());
                     break;
+                case "创建配置文件":
+                    if(args.length == 1){
+                        sender.sendMessage("§e[用法] " + this.cmd + " 创建配置文件 [文件名]");
+                        return true;
+                    }
+                    String fileName = args[1];
+                    File file = new File(this.plugin.getDataFolder().getPath()+"CustomConfig/",fileName);
+                    if(file.exists()){
+                        sender.sendMessage("§c[WTask] 对不起，这个名字的配置文件已经存在了！");
+                        return true;
+                    }
+                    new Config(this.plugin.getDataFolder().getPath() + "CustomConfig/" + fileName + ".yml",Config.YAML);
+                    sender.sendMessage("§a[WTask] 成功创建自定义配置文件！");
+                    return true;
                 default:
                     this.sendHelp(sender);
                     return true;
@@ -101,7 +95,7 @@ public class MainCommand extends Command {
         return true;
     }
 
-    public void sendHelp(CommandSender sender)
+    private void sendHelp(CommandSender sender)
     {
         for(String help : this.mainHelp)
         {

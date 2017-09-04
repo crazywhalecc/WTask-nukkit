@@ -40,8 +40,10 @@ public class Config {
     private File file;
     private boolean correct;
     private int type;
+    @SuppressWarnings("unchecked")
     public static final Map<String, Integer> format = new TreeMap();
 
+    @SuppressWarnings("unchecked")
     public Config(int type) {
         this.config = new ConfigSection();
         this.nestedCache = new HashMap();
@@ -74,6 +76,7 @@ public class Config {
 
     /** @deprecated */
     @Deprecated
+    @SuppressWarnings("unchecked")
     public Config(String file, int type, LinkedHashMap<String, Object> defaultMap) {
         this.config = new ConfigSection();
         this.nestedCache = new HashMap();
@@ -82,6 +85,7 @@ public class Config {
         this.load(file, type, new ConfigSection(defaultMap));
     }
 
+    @SuppressWarnings("unchecked")
     public Config(String file, int type, ConfigSection defaultMap) {
         this.config = new ConfigSection();
         this.nestedCache = new HashMap();
@@ -115,6 +119,7 @@ public class Config {
         return this.load(file, type, new ConfigSection());
     }
 
+    @SuppressWarnings("unchecked")
     public boolean load(String file, int type, ConfigSection defaultMap) {
         this.correct = true;
         this.type = type;
@@ -138,7 +143,7 @@ public class Config {
                 }
 
                 if(format.containsKey(content)) {
-                    this.type = ((Integer)format.get(content)).intValue();
+                    this.type = format.get(content);
                 } else {
                     this.correct = false;
                 }
@@ -261,6 +266,10 @@ public class Config {
 
     public <T> T get(String key, T defaultValue) {
         return this.correct?this.config.get(key, defaultValue):defaultValue;
+    }
+
+    public Map<String, Object> getMap(String key){
+        return (Map<String, Object>) this.get(key,null);
     }
 
     public ConfigSection getSection(String key) {
@@ -480,7 +489,7 @@ public class Config {
 
         for(int var4 = 0; var4 < var3; ++var4) {
             String line = var2[var4];
-            if(Pattern.compile("[a-zA-Z0-9\\-_\\.]*+=+[^\\r\\n]*").matcher(line).matches()) {
+            if(Pattern.compile("[a-zA-Z0-9\\-.]*+=+[^\\r\\n]*").matcher(line).matches()) {
                 String[] b = line.split("=", -1);
                 String k = b[0];
                 String v = b[1].trim();

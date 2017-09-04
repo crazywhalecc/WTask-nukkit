@@ -9,6 +9,7 @@ import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.sound.*;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.potion.Effect;
 import me.onebone.economyapi.EconomyAPI;
 import money.Money;
@@ -268,6 +269,7 @@ public class NormalTaskAPI implements TaskBase{
         }
     }
 
+    @SuppressWarnings("unchecked")
     public String checkFinish(String it,String tn, Player p){
         if(p == null){
             return "false:未检测到玩家！";
@@ -650,6 +652,29 @@ public class NormalTaskAPI implements TaskBase{
         }
     }
 
+    public String checkMoney(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],this.player);
+        if(this.player == null) return "false:玩家不存在！";
+        int money;
+        switch(api.plugin.getEconomyType()){
+            case "EconomyAPI":
+                money = (new BigDecimal(EconomyAPI.getInstance().myMoney(player))).intValue();
+                break;
+            case "Money":
+                money = (new BigDecimal(Money.getInstance().getMoney(player))).intValue();
+                break;
+            default:
+                return "false:未安装任何经济核心！";
+        }
+        if(money >= Integer.parseInt(its[0])){
+            return doSubCommand(its[1],its[0]);
+        }
+        else{
+            return doSubCommand(its[2]);
+        }
+    }
+
     public String doSubCommand(String cmdd){
         return doSubCommand(cmdd,"");
     }
@@ -691,7 +716,22 @@ public class NormalTaskAPI implements TaskBase{
                             return r;
                         }
                     }
-                    return "true";
+                    break;
+                case "delmoney":
+                    if(extraData.equals("")){
+                        return "false:非delmoney方式禁止使用delmoney功能！";
+                    }
+                    switch(api.plugin.getEconomyType()){
+                        case "EconomyAPI":
+                            EconomyAPI.getInstance().reduceMoney(this.player,Double.parseDouble(extraData));
+                            break;
+                        case "Money":
+                            Money.getInstance().reduceMoney(this.player,Float.parseFloat(extraData));
+                            break;
+                        default:
+                            return "false:未安装任何经济核心！";
+                    }
+                    break;
             }
         }
         return "true";
@@ -715,5 +755,95 @@ public class NormalTaskAPI implements TaskBase{
             }
         }
         return "true";
+    }
+
+    public String checkCount(String it) {
+        String[] its = it.split("\\|");
+        String fuhao = api.executeCompare(its[0]);
+        if(fuhao.equals("")){
+            return "false:未找到任何符号！";
+        }
+        String[] number = its[0].split(fuhao);
+        number[0] = api.executeReturnData(number[0],this.player);
+        number[1] = api.executeReturnData(number[1],this.player);
+        boolean result = api.calCompare(number,fuhao);
+        if(result){
+            return doSubCommand(its[1]);
+        }
+        else{
+            return doSubCommand(its[2]);
+        }
+    }
+
+    public String checkCountDouble(String it){
+        String[] its = it.split("\\|");
+        String fuhao = api.executeCompare(its[0]);
+        if(fuhao.equals("")){
+            return "false:未找到任何符号！";
+        }
+        String[] number = its[0].split(fuhao);
+        number[0] = api.executeReturnData(number[0],this.player);
+        number[1] = api.executeReturnData(number[1],this.player);
+        boolean result = api.calCompare(number,fuhao,true);
+        if(result){
+            return doSubCommand(its[1]);
+        }
+        else{
+            return doSubCommand(its[2]);
+        }
+    }
+
+    public String checkGm(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],this.player);
+        if(this.player == null) return "false:玩家不存在！";
+        if(this.player.getGamemode() == Integer.parseInt(its[0])){
+            return doSubCommand(its[1]);
+        }
+        else{
+            return doSubCommand(its[2]);
+        }
+    }
+
+    public String dropItem(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],this.player);
+        its[1] = api.executeReturnData(its[1],this.player);
+        String[] levelSs = its[0].split(":");
+        Level level = Server.getInstance().getLevelByName(levelSs[3]);
+        if(level == null){
+            return "false:世界"+levelSs[3] + "不存在！";
+        }
+        return dropItems(executePosition(its[0]),its[1].split(","),level);
+    }
+
+    public String dropItems(Vector3 pos, String[] items, Level level){
+        for(String item : items){
+            String each = api.executeReturnData(item, this.player);
+            String[] sp = each.split("-");
+            if(sp.length == 4){
+                if(!ItemPercent(sp[3])){
+                    continue;
+                }
+            }
+            level.dropItem(pos, Item.get(Integer.parseInt(sp[0]),Integer.parseInt(sp[1]),Integer.parseInt(sp[2])));
+        }
+        return "true";
+    }
+
+    public boolean ItemPercent(String it){
+        int rdm = (new Random()).nextInt(100)+1;
+        return Integer.parseInt(it) >= rdm;
+    }
+
+    public String calculatePercentTask(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],this.player);
+        if(ItemPercent(its[0])){
+            return doSubCommand(its[1]);
+        }
+        else{
+            return doSubCommand(its[2]);
+        }
     }
 }
