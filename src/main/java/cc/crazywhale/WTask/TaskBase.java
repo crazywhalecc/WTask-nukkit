@@ -45,4 +45,6 @@ interface TaskBase {
     String dropItems(Vector3 pos, String[] items, Level level);
     boolean ItemPercent(String it);
     String calculatePercentTask(String it);
+    String manageTemp(String it);
+    String compareText(String it);
 }

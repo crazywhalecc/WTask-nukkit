@@ -15,6 +15,7 @@
     <orderEntry type="library" name="nukkit-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Money-2.0.8" level="project" />
     <orderEntry type="library" name="EconomyAPI-test" level="project" />
+    <orderEntry type="library" name="SChair" level="project" />
     <orderEntry type="module-library">
       <library name="Maven: cn.nukkit:nukkit:1.0-SNAPSHOT">
         <CLASSES>

@@ -577,6 +577,54 @@ public class NormalTaskAPI implements TaskBase{
         }
     }
 
+    public String manageTemp(String it){
+        String[] its = it.split("\\|");
+        its[1] = api.executeReturnData(its[1],this.player);
+        switch(its[0]){
+            case "是否存在私有":
+                if(this.player == null){
+                    return "false:玩家不存在！";
+                }
+                if(!this.api.plugin.privateTempData.containsKey(this.player.getName().toLowerCase())){
+                    return doSubCommand(its[3]);
+                }
+                else if(this.api.plugin.privateTempData.get(this.player.getName().toLowerCase()).containsKey(its[1])){
+                    return doSubCommand(its[2]);
+                }
+                else{
+                    return doSubCommand(its[3]);
+                }
+            case "是否存在公有":
+                if(this.player == null){
+                    return "false:玩家不存在！";
+                }
+                its[1] = api.executeReturnData(its[1],this.player);
+                if(this.api.plugin.publicTempData.containsKey(its[1])){
+                    return doSubCommand(its[2]);
+                }
+                else{
+                    return doSubCommand(its[3]);
+                }
+            default:
+                return "false:传入参数错误！";
+        }
+    }
+
+    public String compareText(String it){
+        String[] its = it.split("\\|");
+        its[0] = api.executeReturnData(its[0],player);
+        its[1] = api.executeReturnData(its[1],player);
+        if(its.length < 4){
+            return "false:比较字符串功能传入参数不足，期望数量：4";
+        }
+        if(its[0].equals(its[1])){
+            return doSubCommand(its[2]);
+        }
+        else{
+            return doSubCommand(its[3]);
+        }
+    }
+
     public String makeExplosion(String it){
         String[] its = it.split("\\|");
         its[0] = api.executeReturnData(its[0],player);

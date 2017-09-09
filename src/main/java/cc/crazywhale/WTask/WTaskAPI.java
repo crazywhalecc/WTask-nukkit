@@ -677,15 +677,18 @@ public class WTaskAPI {
                 return t.calculatePercentTask(currentMap.get("function"));
             case "block":
             case "方块":
-
+                return "false:方块功能暂时不在nukkit版提供！";
             case "写标签":
-
+                return "false:现已废弃写标签功能！";
             case "缓存":
-
+                return t.manageTemp(currentMap.get("function"));
             case "c":
-
+                return "false:nukkit版本WTask不支持用c功能！";
             case "比较字符串":
-
+                return t.compareText(currentMap.get("function"));
+            case "console":
+                this.plugin.getServer().getLogger().info(executeReturnData(currentMap.get("function"),t.player));
+                return "true";
                 //TODO
             default:
                 return "false:未知类型的功能！";

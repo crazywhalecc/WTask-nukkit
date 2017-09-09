@@ -29,6 +29,7 @@ public class WTask extends PluginBase {
     public Map<String, Map<String, String>> privateTempData;
     public Map<String, String> publicTempData;
     public Map<String, Config> customConfig;
+    final int CONFIG_VERSION = 6;
 
     Map<String, Object> taskData;
     Map<String, ArrayList<Map<String, String>>>normalTaskList;
@@ -100,6 +101,7 @@ public class WTask extends PluginBase {
         saveResource("mods.json");
         mod = new Config(this.getDataFolder().getPath() + "/mods.json",Config.JSON);
         customCommand = new Config(this.getDataFolder().getPath() + "/customCommands.json",Config.JSON);
+
     }
 
     @SuppressWarnings("unchecked")
