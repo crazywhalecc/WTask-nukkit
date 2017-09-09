@@ -19,14 +19,13 @@ public class MainCommand extends Command {
     private ArrayList<String> mainHelp = new ArrayList<>();
     private ArrayList<String> mainHelp2 = new ArrayList<>();
 
-    public MainCommand(WTask plugin,String c)
+    public MainCommand(WTask plugin,Map<String, Object> desc)
     {
-        super(c);
-        Map<String, Object> desc = plugin.getCmdInfo("MainCommand");
+        super((String) desc.get("command"),(String) desc.get("desctiption"), null, (String[]) (desc.get("multiple") == null ? new String[0] : desc.get("multiple")));
         this.cmd = (String) desc.get("command");
-
         this.plugin = plugin;
         this.setPermission((String) desc.get("permission"));
+        String c = cmd;
         mainHelp.add("§6======WTask主菜单(§a1 §6/ §e2§6)======\n§7*  当前版本: " + plugin.getDescription().getVersion());
         mainHelp.add("§7*  翻页: /" + cmd + " help [页数]");
         mainHelp.add("§e*  输入/"+cmd+" info 来查看当前版本的更新日志哦～");
@@ -36,6 +35,7 @@ public class MainCommand extends Command {
         mainHelp.add("§a/" + c + " info: §b关于WTask插件及版权");
         mainHelp2.add("§6=====WTask主菜单(§a2 §6/ §e2§6)=====");
         mainHelp2.add("§a/" + c + " 权限: §b设置玩家权限");
+        mainHelp2.add("§a/" + c + " 添加动作任务: §b添加一个动作类型的任务");
     }
 
     public boolean execute(CommandSender sender, String ssss, String[] args)
@@ -117,6 +117,41 @@ public class MainCommand extends Command {
                     plugin.playerPerm.save();
                     sender.sendMessage("§a[WTask] 成功设置玩家 "+args[1]+" 的权限为" + args[2]+"!");
                     return true;
+                case "添加动作任务":
+                    if(args.length == 1){
+                        sender.sendMessage("§e[用法] /"+cmd+" 添加动作任务 [动作类型] [任务名称]");
+                        sender.sendMessage("§d当前支持的动作类型有: \n§b破坏方块, 放置方块, 玩家点击, 玩家死亡, 玩家丢弃物品, 玩家输入指令, 玩家聊天, 玩家传送, 玩家攻击玩家, 玩家加入");
+                        return true;
+                    }
+                    else if(args.length == 2){
+                        sender.sendMessage("§e[用法] /"+cmd+" 添加动作任务 "+args[1]+" [任务名称]");
+                        return true;
+                    }
+                    else{
+                        switch(args[1]){
+                            case "破坏方块":
+                            case "放置方块":
+                            case "玩家点击":
+                            case "玩家死亡":
+                            case "玩家丢弃物品":
+                            case "玩家输入指令":
+                            case "玩家聊天":
+                            case "玩家传送":
+                            case "玩家攻击玩家":
+                            case "玩家加入":
+                                String tn = args[2];
+                                boolean results = plugin.api.addActTask(args[1],tn,"true");
+                                if(!results){
+                                    sender.sendMessage("§c[WTask] 对不起，这个名字的任务已经存在了！");
+                                    return true;
+                                }
+                                sender.sendMessage("§a[WTask] 成功创建动作任务 "+tn+"，动作类型是 "+args[1]+"!");
+                                return true;
+                            default:
+                                sender.sendMessage("§c动作类型出错！不支持的动作类型！");
+                                return true;
+                        }
+                    }
                 default:
                     sender.sendMessage("§c[WTask] 输入指令错误！请输入 /"+cmd+" help [页数");
                     return true;

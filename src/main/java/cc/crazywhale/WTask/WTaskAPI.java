@@ -200,6 +200,42 @@ public class WTaskAPI {
         return false;
     }
 
+    public boolean addActTask(String type, String taskname, String active){
+        if (isTaskExists(taskname)) {
+            System.out.println("r任务真的已经存在了");
+            return false;
+        }
+        File path = new File(plugin.getDataFolder(), "tasks/");
+        File file = new File(path, taskname + ".cc");
+        if (!file.exists()) {
+            try {
+                try {
+                    boolean r = file.createNewFile();
+                    if (!r) {
+                        System.out.println("新文件创建不了！");
+                        plugin.getLogger().warning("创建任务失败！");
+                        return false;
+                    }
+                } catch (IOException es) {
+                    System.out.println("无法创建文件！");
+                }
+                FileOutputStream os = new FileOutputStream(new File(path, taskname + ".cc"));
+                os.write(("[动作任务:" + taskname + ":"+type+":"+active+"]\n<结束>").getBytes());
+                loadTasks();
+                return true;
+            } catch (Exception e) {
+                if (e instanceof FileNotFoundException)
+                    System.out.println("新建写入任务时候未找到文件！");
+                else if (!(e instanceof IOException)) {
+                    System.out.println("无法写入文件！");
+                }
+                plugin.getLogger().warning("创建任务失败！");
+            }
+        }
+        //System.out.println("文件已经存在");
+        return false;
+    }
+
     public boolean isTaskExists(String taskname) {
         Map<String, Object> t = getTaskData(taskname);
         return t != null;

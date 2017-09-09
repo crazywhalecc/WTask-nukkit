@@ -7,20 +7,20 @@ import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.ConsoleCommandSender;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
  * Created by whale on 2017/7/22.
  */
-public class NormalTaskCommand extends Command {
+public class ActNormalTaskCommand extends Command {
 
     private WTask plugin;
     private String cmd;
     private WTaskAPI api;
 
-    public NormalTaskCommand(WTask plugin, String c) {
-        super(c);
-        Map<String, Object> desc = plugin.getCmdInfo("NormalTaskCommand");
+    public ActNormalTaskCommand(WTask plugin, Map<String, Object> desc) {
+        super((String) desc.get("command"),(String) desc.get("desctiption"), null, (String[]) (desc.get("multiple") == null ? new String[0] : ((ArrayList<String>)desc.get("multiple")).toArray(new String[((ArrayList<String>)desc.get("multiple")).size()])));
         this.cmd = (String) desc.get("command");
         this.api = plugin.api;
         this.plugin = plugin;

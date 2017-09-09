@@ -1,7 +1,7 @@
 name: WTask
 main: cc.crazywhale.WTask.WTask
 api: [1.0.0]
-version: "1.0.7"
+version: "1.0.8"
 author: Whale
 
 load: POSTWORLD
@@ -11,4 +11,12 @@ permissions:
   wtask.command.op:
     default: op
   wtask.command.player:
+    default: true
+  wtask.command.wt:
+    default: true
+  wtask.command.wtask:
+    default: op
+  op:
+    default: op
+  "true":
     default: true

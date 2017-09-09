@@ -1,7 +1,9 @@
 package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.Commands.MainCommand;
-import cc.crazywhale.WTask.Commands.NormalTaskCommand;
+import cc.crazywhale.WTask.Commands.ActNormalTaskCommand;
+import cc.crazywhale.WTask.TaskListener.BlockBreakListener;
+import cc.crazywhale.WTask.TaskListener.TaskListener;
 import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
 
@@ -31,6 +33,8 @@ public class WTask extends PluginBase {
     public Map<String, Config> customConfig;
     final int CONFIG_VERSION = 6;
 
+    Map<String, TaskListener> actTaskListener;
+
     Map<String, Object> taskData;
     Map<String, ArrayList<Map<String, String>>>normalTaskList;
 
@@ -44,6 +48,7 @@ public class WTask extends PluginBase {
         publicTempData = new LinkedHashMap<>();
         taskData = new LinkedHashMap<>();
         normalTaskList = new LinkedHashMap<>();
+        actTaskListener = new LinkedHashMap<>();
     }
 
     public static WTask getInstance(){
@@ -52,29 +57,31 @@ public class WTask extends PluginBase {
 
     public void onEnable(){
         File taskPath = new File(getDataFolder(),"tasks/");
-        if(!taskPath.exists()){
-            boolean r = taskPath.mkdirs();
-            if(!r){
-                getLogger().warning("文件夹创建异常！");
-            }
-        }
+        if(!taskPath.exists()){ boolean r = taskPath.mkdirs();if(!r){getLogger().warning("文件夹创建异常！");} }
         this.makeConfig();
         this.registerSettings();
+        this.updateData((int) this.setting.get("Config-Version"));
         this.taskData = new LinkedHashMap<>();
         boolean r = this.api.loadTasks();
-        if(!r){
-            getLogger().critical("任务解析出错！请检查任务内容后重新/wtask reload");
+        if(!r){getLogger().critical("任务解析出错！请检查任务内容后重新/wtask reload");}
+        initializeEconomy();
+        enableActTasks();
+        this.getServer().getLogger().info("成功启动WTask v1.0 for Nukkit！");
+    }
+
+    private void updateData(int i){
+        if(i < CONFIG_VERSION){
+            getServer().getLogger().notice("正在更新配置文件...");
         }
-        //saveResource("default.cc");
-        if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
-        {
-            this.economyType = "EconomyAPI";
+        switch(i){
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                break;
         }
-        else if(this.getServer().getPluginManager().getPlugin("Money") != null)
-            this.economyType = "Money";
-        else
-            this.economyType = "null";
-        this.getServer().getLogger().info("成功启动WTask v1.0_alpha for Nukkit！");
     }
 
     private void makeConfig()
@@ -109,10 +116,9 @@ public class WTask extends PluginBase {
     {
         this.api = new WTaskAPI(this);
         Map<String, Object> desc = (Map<String, Object>) this.command.get("MainCommand");
-        String maincmd = (String) desc.get("command");
-        MainCommand mainCommand = new MainCommand(this, maincmd);
-        String normalcmd = (String) ((Map<String, Object>) this.command.get("NormalTaskCommand")).get("command");
-        NormalTaskCommand normalTaskCommand = new NormalTaskCommand(this, normalcmd);
+        MainCommand mainCommand = new MainCommand(this, desc);
+        Map<String, Object> normalcmd = (Map<String, Object>) this.command.get("ActNormalTaskCommand");
+        ActNormalTaskCommand normalTaskCommand = new ActNormalTaskCommand(this, normalcmd);
         this.getServer().getCommandMap().register("WTask", mainCommand);
         this.getServer().getCommandMap().register("WTask", normalTaskCommand);
     }
@@ -145,6 +151,7 @@ public class WTask extends PluginBase {
         }
         return aa.toString();
     }
+
     public boolean getPerm(Player p, String perm){
         int permission = Integer.parseInt(perm);
         if(p.isOp()){
@@ -154,5 +161,34 @@ public class WTask extends PluginBase {
             return permission <= this.playerPerm.getInt(p.getName().toLowerCase());
         }
         return permission <= this.setting.getInt("玩家默认权限");
+    }
+
+    private void initializeEconomy(){
+        if(this.getServer().getPluginManager().getPlugin("EconomyAPI") != null)
+        {
+            this.economyType = "EconomyAPI";
+        }
+        else if(this.getServer().getPluginManager().getPlugin("Money") != null)
+            this.economyType = "Money";
+        else
+            this.economyType = "null";
+    }
+
+    @SuppressWarnings("unchecked")
+    private void enableActTasks(){
+        for(Map.Entry<String, Object> entry : taskData.entrySet()){
+            Map<String, Object> vcc = (Map<String, Object>) entry.getValue();
+            if(vcc.get("type").equals("动作任务")){
+                if(vcc.get("actActive").equals("false")){
+                    continue;
+                }
+                switch((String) vcc.get("actType")){
+                    case "破坏方块":
+                        actTaskListener.put(entry.getKey(),new BlockBreakListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                }
+                String ty = (String) vcc.get("actType");
+                this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+"！");
+            }
+        }
     }
 }
