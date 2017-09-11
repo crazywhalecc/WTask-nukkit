@@ -7,20 +7,20 @@ import cc.crazywhale.WTask.interfaces.TaskListener;
 import cc.crazywhale.WTask.tasks.DelayedActTask;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
-import cn.nukkit.event.block.BlockBreakEvent;
+import cn.nukkit.event.block.BlockPlaceEvent;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class BlockBreakListener extends TaskListenerBase implements Listener, TaskListener {
+public class BlockPlaceListener extends TaskListenerBase implements Listener, TaskListener {
 
     WTaskAPI api;
     WTask plugin;
     ArrayList<Map<String, String>> task;
     String tn;
 
-    public BlockBreakListener(WTaskAPI api, ArrayList<Map<String, String>> task, String tn){
+    public BlockPlaceListener(WTaskAPI api, ArrayList<Map<String, String>> task, String tn){
         this.api = api;
         this.plugin = api.plugin;
         this.task = task;
@@ -32,7 +32,7 @@ public class BlockBreakListener extends TaskListenerBase implements Listener, Ta
         this.task = api.prepareTask(tn);
     }
 
-    public void runActTask(BlockBreakEvent event,int ID){
+    public void runActTask(BlockPlaceEvent event, int ID){
         ActTaskAPI t = new ActTaskAPI(event, event.getPlayer(),api);
         t.writePrivateData("item|"+event.getBlock().getId()+"-"+event.getBlock().getDamage()+"-1");
         t.writePrivateData("id|"+event.getBlock().getId());
@@ -110,7 +110,7 @@ public class BlockBreakListener extends TaskListenerBase implements Listener, Ta
     }
 
     @EventHandler
-    public void onBreak(BlockBreakEvent event){
+    public void onBreak(BlockPlaceEvent event){
         runActTask(event,0);
     }
 }

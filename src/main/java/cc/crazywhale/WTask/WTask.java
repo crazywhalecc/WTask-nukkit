@@ -3,7 +3,9 @@ package cc.crazywhale.WTask;
 import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.ActNormalTaskCommand;
 import cc.crazywhale.WTask.TaskListener.BlockBreakListener;
-import cc.crazywhale.WTask.TaskListener.TaskListener;
+import cc.crazywhale.WTask.TaskListener.BlockPlaceListener;
+import cc.crazywhale.WTask.TaskListener.EntityDamageListener;
+import cc.crazywhale.WTask.interfaces.TaskListener;
 import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
 
@@ -15,7 +17,7 @@ import java.util.Map;
 /**
  * Created by whale on 2017/7/22.
  */
-public class WTask extends PluginBase {
+public class WTask extends PluginBase{
 
     public Config setting;
     public WTaskAPI api;
@@ -182,12 +184,26 @@ public class WTask extends PluginBase {
                 if(vcc.get("actActive").equals("false")){
                     continue;
                 }
-                switch((String) vcc.get("actType")){
+                String ty = (String) vcc.get("actType");
+                switch(ty){
                     case "破坏方块":
                         actTaskListener.put(entry.getKey(),new BlockBreakListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" ！");
+                        break;
+                    case "放置方块":
+                        actTaskListener.put(entry.getKey(),new BlockPlaceListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动  [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家攻击玩家":
+                    case "玩家攻击":
+                        actTaskListener.put(entry.getKey(),new EntityDamageListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动  [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    default:
+                        getServer().getLogger().warning("未知类型的动作任务 "+ty+" ！");
+                        break;
                 }
-                String ty = (String) vcc.get("actType");
-                this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+"！");
+
             }
         }
     }

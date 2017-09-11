@@ -530,6 +530,7 @@ public class WTaskAPI {
                             break;
                         case "end":
                             ID = 10000;
+                            break;
                         default:
                             String[] pp = newr[0].split("-");
                             if (pp.length == 2) {
@@ -742,9 +743,11 @@ public class WTaskAPI {
         }
         String m1 = this.getF2(line);
         String[] mtype = m1.split(":");
+        String type = mtype[0];
+        String function = m1.substring(m1.indexOf(":")+1);
         String[] templist = this.array_shift(mtype);
-        String lis = this.plugin.implode(":", templist);
-        switch (mtype[0]) {
+        String lis = function;
+        switch (type) {
             case "玩家":
                 if (p == null) {
                     return "(error:null_player)";
@@ -852,6 +855,7 @@ public class WTaskAPI {
                 }
             case "物品解析":
                 String[] dataIns = lis.split("\\.");
+                System.out.println(dataIns[0]+"\n"+dataIns[1]);
                 String r2 = checkCirculate(dataIns[1], p);
                 String itemdd = (r2.equals("none") ? dataIns[1] : r2);
                 String[] itemlist = itemdd.split("-");

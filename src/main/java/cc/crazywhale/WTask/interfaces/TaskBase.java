@@ -1,4 +1,4 @@
-package cc.crazywhale.WTask;
+package cc.crazywhale.WTask.interfaces;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
@@ -6,7 +6,7 @@ import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 
-interface TaskBase {
+public interface TaskBase {
     String sendTip(String it);
     String sendPopup(String it);
     String sendMessageTo(String it);

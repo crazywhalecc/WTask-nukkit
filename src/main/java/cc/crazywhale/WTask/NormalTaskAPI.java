@@ -1,5 +1,6 @@
 package cc.crazywhale.WTask;
 
+import cc.crazywhale.WTask.interfaces.TaskBase;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.command.ConsoleCommandSender;
@@ -21,7 +22,7 @@ import java.util.*;
 /**
  * Created by whale on 2017/7/23.
  */
-public class NormalTaskAPI implements TaskBase{
+public class NormalTaskAPI implements TaskBase {
 
     public Player player = null;
     public WTaskAPI api = null;
@@ -732,6 +733,9 @@ public class NormalTaskAPI implements TaskBase{
         for(String multi : multiTask){
             String[] cmd = multi.split("\\.");
             switch(cmd[0]){
+                case "cancel":
+                case "取消":
+                    break;
                 case "跳转":
                 case "jump":
                     return "jump-" + cmd[1];
