@@ -1,7 +1,7 @@
 # WTask-nukkit
 [![Build Status](https://travis-ci.org/BlueWhaleNetwork/WTask-nukkit.svg?branch=master)](https://travis-ci.org/BlueWhaleNetwork/WTask-nukkit)<br>
-[![Alipay donate button](https://img.shields.io/badge/paypal-donate-blue.svg)](https://www.baidu.com/)
-WTask-nukkit特别版～<br
+捐赠鲸鱼按钮-&gt;&gt;[![Alipay donate button](https://img.shields.io/badge/paypal-donate-blue.svg)](https://qr.alipay.com/tsx023405zt3zy1xw6nbt40)<br>
+WTask-nukkit特别版～<br>
 想获取jar？加入QQ群：237043779<br><br><br>
 
 
