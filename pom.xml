@@ -49,6 +49,11 @@
             <scope>system</scope>
             <systemPath>${basedir}/depends/EconomyAPI_v1.0.1.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations-java5</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 
 </project>

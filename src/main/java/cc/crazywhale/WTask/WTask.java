@@ -2,10 +2,9 @@ package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.ActNormalTaskCommand;
-import cc.crazywhale.WTask.TaskListener.BlockBreakListener;
-import cc.crazywhale.WTask.TaskListener.BlockPlaceListener;
-import cc.crazywhale.WTask.TaskListener.EntityDamageListener;
+import cc.crazywhale.WTask.TaskListener.*;
 import cc.crazywhale.WTask.interfaces.TaskListener;
+import cc.crazywhale.WTask.tasks.PressureTask;
 import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
 
@@ -43,9 +42,11 @@ public class WTask extends PluginBase{
     public void onLoad(){
         obj = this;
         initializeData();
+
     }
 
     private void initializeData(){
+        new PressureTask(this);
         privateTempData = new LinkedHashMap<>();
         publicTempData = new LinkedHashMap<>();
         taskData = new LinkedHashMap<>();
@@ -198,6 +199,14 @@ public class WTask extends PluginBase{
                     case "玩家攻击":
                         actTaskListener.put(entry.getKey(),new EntityDamageListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
                         this.getServer().getLogger().notice("成功启动  [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家聊天":
+                        actTaskListener.put(entry.getKey(),new PlayerChatListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家输入指令":
+                        actTaskListener.put(entry.getKey(),new PlayerCommandActivateListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
                         break;
                     default:
                         getServer().getLogger().warning("未知类型的动作任务 "+ty+" ！");

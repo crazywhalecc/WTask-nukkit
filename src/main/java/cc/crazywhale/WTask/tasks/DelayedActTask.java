@@ -1,13 +1,13 @@
 package cc.crazywhale.WTask.tasks;
 
-import cc.crazywhale.WTask.TaskListener.BlockBreakListener;
-import cc.crazywhale.WTask.TaskListener.BlockPlaceListener;
-import cc.crazywhale.WTask.TaskListener.EntityDamageListener;
-import cc.crazywhale.WTask.TaskListener.TaskListenerBase;
+import cc.crazywhale.WTask.TaskListener.*;
 import cc.crazywhale.WTask.WTask;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.scheduler.PluginTask;
 
 public class DelayedActTask extends PluginTask<WTask> {
@@ -32,6 +32,15 @@ public class DelayedActTask extends PluginTask<WTask> {
         }
         else if(this.listener instanceof EntityDamageListener){
             this.listener.runActTask((EntityDamageByEntityEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerChatListener){
+            this.listener.runActTask((PlayerChatEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerCommandActivateListener){
+            this.listener.runActTask((PlayerCommandPreprocessEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerDeathListener){
+            this.listener.runActTask((PlayerDeathEvent) event, ID);
         }
     }
 }

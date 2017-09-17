@@ -5,6 +5,9 @@ import cn.nukkit.Player;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockEvent;
+import cn.nukkit.event.player.PlayerChatEvent;
+import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.item.Item;
 
 import java.util.ArrayList;
@@ -30,8 +33,16 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
         return (BlockEvent) event;
     }
 
+    public PlayerChatEvent getPlayerChatEvent(){
+        return (PlayerChatEvent) event;
+    }
+
     public BlockBreakEvent getBlockBreakEvent(){
         return (BlockBreakEvent) event;
+    }
+
+    public PlayerCommandPreprocessEvent getPlayerCommandPreprocessEvent(){
+        return (PlayerCommandPreprocessEvent) event;
     }
 
     public Event getEvent(){
@@ -63,6 +74,65 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
         return "true";
     }
 
+    public String checkMessage(String it){
+        if(!(this.event instanceof PlayerChatEvent)){
+            return "false:传入的事件类型错误！";
+        }
+        String[] its = it.split("\\|");
+        if(its.length < 4){
+            return "false:传入的参数不足！";
+        }
+        switch(its[0]){
+            case "比较消息":
+                String msg = getPlayerChatEvent().getMessage();
+                if(msg.equals(api.executeReturnData(its[1],player))){
+                    return doSubCommand2(its[2]);
+                }
+                else{
+                    return doSubCommand2(its[3]);
+                }
+            case "存在关键词":
+                String msg2 = getPlayerChatEvent().getMessage();
+                if(msg2.contains(api.executeReturnData(its[1], player))){
+                    return doSubCommand2(its[2]);
+                }
+                else{
+                    return doSubCommand(its[3]);
+                }
+
+        }
+        return "false:未知类型的分参数功能！";
+    }
+
+    public String checkCommand(String it){
+        if(!(this.event instanceof PlayerCommandPreprocessEvent)){
+            return "false:传入的事件类型错误！";
+        }
+        String[] its = it.split("\\|");
+        if(its.length < 4){
+            return "false:传入的参数不足！";
+        }
+        switch(its[0]){
+            case "比较主指令":
+                String msg = getPlayerCommandPreprocessEvent().getMessage();
+                if(msg.substring(1,msg.indexOf(" ")).equals(api.executeReturnData(its[1],player))){
+                    return doSubCommand2(its[2]);
+                }
+                else{
+                    return doSubCommand2(its[3]);
+                }
+            case "比较全指令":
+                String msg2 = getPlayerChatEvent().getMessage();
+                if(msg2.substring(1).equals(api.executeReturnData(its[1], player))){
+                    return doSubCommand2(its[2]);
+                }
+                else{
+                    return doSubCommand(its[3]);
+                }
+        }
+        return "false:未知类型的分参数功能！";
+    }
+
     public String setDropItems(String it){
         if(!this.isBlockEvent()){
             return "false:传入的事件类型错误！";
@@ -88,5 +158,27 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
             this.getEvent().setCancelled();
         }
         return doSubCommand(it);
+    }
+
+    public void setKeepInv(String it){
+        if(event instanceof PlayerDeathEvent){
+            if(Integer.parseInt(it) == 0){
+                ((PlayerDeathEvent) event).setKeepInventory(false);
+            }
+            else{
+                ((PlayerDeathEvent) event).setKeepInventory(true);
+            }
+        }
+    }
+
+    public void setKeepExp(String it){
+        if(event instanceof PlayerDeathEvent){
+            if(Integer.parseInt(it) == 0){
+                ((PlayerDeathEvent) event).setKeepExperience(false);
+            }
+            else{
+                ((PlayerDeathEvent) event).setKeepExperience(true);
+            }
+        }
     }
 }
