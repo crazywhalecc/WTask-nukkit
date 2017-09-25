@@ -7,6 +7,7 @@ import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
+import com.sun.jdi.InterfaceType;
 import me.onebone.economyapi.EconomyAPI;
 import money.Money;
 
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
 /**
  * Created by whale on 2017/7/22.
  */
-public class WTaskAPI {
+public class WTaskAPI{
 
     public WTask plugin = null;
     Map<String, String> mode = new LinkedHashMap<>();

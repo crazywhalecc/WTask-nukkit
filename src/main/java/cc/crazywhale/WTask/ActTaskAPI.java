@@ -8,6 +8,7 @@ import cn.nukkit.event.block.BlockEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
+import cn.nukkit.event.player.PlayerDropItemEvent;
 import cn.nukkit.item.Item;
 
 import java.util.ArrayList;
@@ -180,5 +181,16 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
                 ((PlayerDeathEvent) event).setKeepExperience(true);
             }
         }
+    }
+
+    public String checkDropItem(String it){
+        if(!(event instanceof PlayerDropItemEvent)){
+            return "false:传入了未知类型的事件！";
+        }
+        String[] its = it.split("\\|");
+        if(its.length < 3){
+            return "false:传入的参数不足！";
+        }
+    return "";
     }
 }

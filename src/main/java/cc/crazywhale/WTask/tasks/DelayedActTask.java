@@ -8,6 +8,7 @@ import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
+import cn.nukkit.event.player.PlayerDropItemEvent;
 import cn.nukkit.scheduler.PluginTask;
 
 public class DelayedActTask extends PluginTask<WTask> {
@@ -41,6 +42,9 @@ public class DelayedActTask extends PluginTask<WTask> {
         }
         else if(this.listener instanceof PlayerDeathListener){
             this.listener.runActTask((PlayerDeathEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerDropItemListener){
+            this.listener.runActTask((PlayerDropItemEvent) event, ID);
         }
     }
 }
