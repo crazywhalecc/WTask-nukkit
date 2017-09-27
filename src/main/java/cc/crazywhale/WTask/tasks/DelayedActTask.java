@@ -5,10 +5,7 @@ import cc.crazywhale.WTask.WTask;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
-import cn.nukkit.event.player.PlayerChatEvent;
-import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
-import cn.nukkit.event.player.PlayerDeathEvent;
-import cn.nukkit.event.player.PlayerDropItemEvent;
+import cn.nukkit.event.player.*;
 import cn.nukkit.scheduler.PluginTask;
 
 public class DelayedActTask extends PluginTask<WTask> {
@@ -45,6 +42,12 @@ public class DelayedActTask extends PluginTask<WTask> {
         }
         else if(this.listener instanceof PlayerDropItemListener){
             this.listener.runActTask((PlayerDropItemEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerInteractListener){
+            this.listener.runActTask((PlayerInteractEvent) event, ID);
+        }
+        else if(this.listener instanceof PlayerJoinListener){
+            this.listener.runActTask((PlayerInteractEvent) event, ID);
         }
     }
 }

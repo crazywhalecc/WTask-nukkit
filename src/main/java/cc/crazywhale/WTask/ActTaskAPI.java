@@ -5,6 +5,7 @@ import cn.nukkit.Player;
 import cn.nukkit.event.Event;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockEvent;
+import cn.nukkit.event.entity.EntityTeleportEvent;
 import cn.nukkit.event.player.PlayerChatEvent;
 import cn.nukkit.event.player.PlayerCommandPreprocessEvent;
 import cn.nukkit.event.player.PlayerDeathEvent;
@@ -192,5 +193,39 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
             return "false:传入的参数不足！";
         }
     return "";
+    }
+
+    public EntityTeleportEvent getEntityTeleportEvent(){
+        return (EntityTeleportEvent) event;
+    }
+
+    public String checkTarget(String it){
+        if(!(event instanceof EntityTeleportEvent)){
+            return "false";
+        }
+        String[] its = it.split("\\|");
+        switch(its[0]){
+            case "检查地图":
+                String map = getEntityTeleportEvent().getTo().level.getFolderName();
+                if(map.equals(api.executeReturnData(its[1],player))){
+                    return doSubCommand2(its[2]);
+                }
+                else{
+                    return doSubCommand(its[3]);
+                }
+            case "检查范围":
+                String maps = getEntityTeleportEvent().getTo().level.getFolderName();
+                String[] series = its[1].split(",");
+                String[] si1 = series[0].split(":");
+                String[] si2 = series[1].split(":");
+                if(!maps.equals(si1[3])){
+                    return doSubCommand2(its[3]);
+                }
+                String po = String.valueOf(getEntityTeleportEvent().getTo().x) + ":";
+                if(plugin.isInArea(po,series[0],series[1])){
+
+            }
+        }
+        return null;
     }
 }

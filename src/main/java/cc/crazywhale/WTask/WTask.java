@@ -4,9 +4,11 @@ import cc.crazywhale.WTask.Commands.MainCommand;
 import cc.crazywhale.WTask.Commands.ActNormalTaskCommand;
 import cc.crazywhale.WTask.TaskListener.*;
 import cc.crazywhale.WTask.interfaces.TaskListener;
+import cc.crazywhale.WTask.tasks.CallbackTask;
 import cc.crazywhale.WTask.tasks.PressureTask;
 import cn.nukkit.Player;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.scheduler.Task;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ public class WTask extends PluginBase{
         initializeEconomy();
         enableActTasks();
         this.getServer().getLogger().info("成功启动WTask v1.0 for Nukkit！");
+        sss();
     }
 
     private void updateData(int i){
@@ -208,12 +211,64 @@ public class WTask extends PluginBase{
                         actTaskListener.put(entry.getKey(),new PlayerCommandActivateListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
                         this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
                         break;
+                    case "玩家点击":
+                        actTaskListener.put(entry.getKey(),new PlayerInteractListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家丢弃物品":
+                        actTaskListener.put(entry.getKey(),new PlayerDropItemListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家死亡":
+                        actTaskListener.put(entry.getKey(),new PlayerDeathListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家加入":
+                        actTaskListener.put(entry.getKey(),new PlayerJoinListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家移动":
+                        actTaskListener.put(entry.getKey(),new PlayerMoveListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
+                    case "玩家重生":
+                        actTaskListener.put(entry.getKey(),new PlayerRespawnListener(api,api.prepareTask(entry.getKey()),entry.getKey()));
+                        this.getServer().getLogger().notice("成功启动 [ "+ty+" ] 动作任务 "+entry.getKey()+" !");
+                        break;
                     default:
                         getServer().getLogger().warning("未知类型的动作任务 "+ty+" ！");
                         break;
                 }
-
             }
         }
+    }
+
+    public boolean isInArea(String pos, String p1, String p2){
+        String[] posx = pos.split(":");
+        String[] p1x = p1.split(":");
+        String[] p2x = p2.split(":");
+        double x1 = (Integer.parseInt(p1x[0]) <= Integer.parseInt(p2x[0]) ? Integer.parseInt(p1x[0]) : Integer.parseInt(p2x[0]));
+        double x2 = (Integer.parseInt(p1x[0]) > Integer.parseInt(p2x[0]) ? Integer.parseInt(p1x[0]) : Integer.parseInt(p2x[0]));
+        double y1 = (Integer.parseInt(p1x[1]) <= Integer.parseInt(p2x[1]) ? Integer.parseInt(p1x[1]) : Integer.parseInt(p2x[1]));
+        double y2 = (Integer.parseInt(p1x[1]) > Integer.parseInt(p2x[1]) ? Integer.parseInt(p1x[1]) : Integer.parseInt(p2x[1]));
+        double z1 = (Integer.parseInt(p1x[2]) <= Integer.parseInt(p2x[2]) ? Integer.parseInt(p1x[2]) : Integer.parseInt(p2x[2]));
+        double z2 = (Integer.parseInt(p1x[2]) > Integer.parseInt(p2x[2]) ? Integer.parseInt(p1x[2]) : Integer.parseInt(p2x[2]));
+        double[] contain = new double[4];
+        contain[0] = Double.parseDouble(posx[0]);
+        contain[1] = Double.parseDouble(posx[1]);
+        contain[2] = Double.parseDouble(posx[2]);
+        if(contain[0] >= x1 && contain[0] <= x2 && contain[1] >= y1 && contain[1] <= y2 && contain[2] >= z1 && contain[2] <= z2){
+            return true;
+        }
+        return false;
+    }
+
+    public void sss(){
+        Task tasks = new CallbackTask(this.getClass().getName(),"reloadss",new ArrayList<>());
+        //this.getServer().getScheduler().scheduleRepeatingTask(tasks,200);
+    }
+
+    public void reloadss(){
+        System.out.println("Whale's project finished!");
     }
 }

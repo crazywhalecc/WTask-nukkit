@@ -30,8 +30,12 @@ public class PlayerDropItemListener extends TaskListenerBase implements TaskList
     /**
      *
      */
+
+
+
     public void reload(){
         this.task = api.prepareTask(tn);
+        System.out.println("test finished!");
     }
 
     @SuppressWarnings("unchecked")
