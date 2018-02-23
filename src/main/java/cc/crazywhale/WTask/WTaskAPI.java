@@ -1,6 +1,7 @@
 package cc.crazywhale.WTask;
 
 import cc.crazywhale.WTask.tasks.DelayedTask;
+import cn.nukkit.AdventureSettings;
 import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -610,11 +611,11 @@ public class WTaskAPI{
                 }
                 switch (curDat[0]) {
                     case "允许飞行":
-                        t.player.getAdventureSettings().setCanFly(true);
+                        t.player.getAdventureSettings().set(AdventureSettings.Type.ALLOW_FLIGHT, true);
                         return "true";
                     case "取消飞行":
-                        t.player.getAdventureSettings().setFlying(false);
-                        t.player.getAdventureSettings().setCanFly(false);
+                        t.player.getAdventureSettings().set(AdventureSettings.Type.FLYING, false);
+                        t.player.getAdventureSettings().set(AdventureSettings.Type.ALLOW_FLIGHT, false);
                         return "true";
                     case "设置血量":
                     case "sethealth":

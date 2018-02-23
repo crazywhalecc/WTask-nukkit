@@ -114,7 +114,6 @@ public class WTask extends PluginBase{
         saveResource("mods.json");
         mod = new Config(this.getDataFolder().getPath() + "/mods.json",Config.JSON);
         customCommand = new Config(this.getDataFolder().getPath() + "/customCommands.json",Config.JSON);
-
     }
 
     @SuppressWarnings("unchecked")
@@ -257,10 +256,7 @@ public class WTask extends PluginBase{
         contain[0] = Double.parseDouble(posx[0]);
         contain[1] = Double.parseDouble(posx[1]);
         contain[2] = Double.parseDouble(posx[2]);
-        if(contain[0] >= x1 && contain[0] <= x2 && contain[1] >= y1 && contain[1] <= y2 && contain[2] >= z1 && contain[2] <= z2){
-            return true;
-        }
-        return false;
+        return contain[0] >= x1 && contain[0] <= x2 && contain[1] >= y1 && contain[1] <= y2 && contain[2] >= z1 && contain[2] <= z2;
     }
 
     public void sss(){

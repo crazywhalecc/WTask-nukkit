@@ -211,6 +211,7 @@ public class ActTaskAPI extends NormalTaskAPI implements ActTaskBase {
                     return doSubCommand2(its[2]);
                 }
                 else{
+                    //System.out.println("help");
                     return doSubCommand(its[3]);
                 }
             case "检查范围":

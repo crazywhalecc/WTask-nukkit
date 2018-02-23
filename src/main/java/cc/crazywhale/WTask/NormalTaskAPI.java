@@ -9,7 +9,7 @@ import cn.nukkit.item.Item;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
-import cn.nukkit.level.sound.*;
+import cn.nukkit.level.Sound;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.potion.Effect;
 import me.onebone.economyapi.EconomyAPI;
@@ -417,76 +417,75 @@ public class NormalTaskAPI implements TaskBase {
         if(player == null){
             return "false:玩家不存在！";
         }
-        Player p = this.player;
         Level l = player.getLevel();
         String[] its = it.split(",");
         for(String pick : its){
             switch(pick){
                 case "1":
-                    l.addSound(new AnvilFallSound(player));
+                    l.addSound(player, Sound.RANDOM_ANVIL_LAND);
                     break;
                 case "2":
-                    l.addSound(new AnvilUseSound(player));
+                    l.addSound(player, Sound.RANDOM_ANVIL_USE);
                     break;
                 case "4":
-                    l.addSound(new BlazeShootSound(player));
+                    l.addSound(player, Sound.MOB_BLAZE_SHOOT);
                     break;
                 case "5":
-                    l.addSound(new ButtonClickSound(player));
+                    l.addSound(player, Sound.RANDOM_CLICK);
                     break;
                 case "6":
-                    l.addSound(new DoorBumpSound(player));
+                    l.addSound(player, Sound.RANDOM_DOOR_OPEN);
                     break;
                 case "7":
-                    l.addSound(new DoorCrashSound(player));
+                    l.addSound(player, Sound.RANDOM_DOOR_CLOSE);
                     break;
                 case "8":
-                    l.addSound(new DoorSound(player));
+                    api.plugin.getLogger().warning("此声音在nk端不再支持！");
                     break;
                 case "9":
-                    l.addSound(new EndermanTeleportSound(player));
+                    l.addSound(player, Sound.MOB_SHULKER_TELEPORT);
                     break;
                 case "10":
-                    l.addSound(new ExplodeSound(player));
+                    l.addSound(player, Sound.RANDOM_EXPLODE);
                     break;
                 case "11":
-                    l.addSound(new ExperienceOrbSound(p));
+                    l.addSound(player, Sound.RANDOM_ORB);
                     break;
                 case "12":
-                    l.addSound(new FizzSound(p));
+                    l.addSound(player, Sound.RANDOM_FIZZ);
                     break;
                 case "13":
-                    l.addSound(new GhastShootSound(p));
+                    l.addSound(player, Sound.MOB_GHAST_FIREBALL);
                     break;
                 case "14":
-                    l.addSound(new GhastSound(p));
+                    l.addSound(player, Sound.MOB_GHAST_SCREAM);
                     break;
                 case "15":
-                    l.addSound(new LaunchSound(p));
+                    l.addSound(player, Sound.FIREWORK_LAUNCH);
                     break;
                 case "16":
                     api.plugin.getLogger().warning("请使用乐谱来播放音符盒声音！");
                     break;
                 case "17":
-                    l.addSound(new PopSound(p));
+                    l.addSound(player, Sound.RANDOM_POP);
                     break;
                 case "18":
                     api.plugin.getLogger().warning("此声音在nk端不再支持！");
                     break;
                 case "19":
-                    l.addSound(new SplashSound(p));
+                    l.addSound(player, Sound.RANDOM_SPLASH);
                     break;
                 case "20":
-                    l.addSound(new TNTPrimeSound(p));
+                    l.addSound(player, Sound.AMBIENT_WEATHER_LIGHTNING_IMPACT);
                     break;
                 case "21":
-                    l.addSound(new ClickSound(p));
+                    l.addSound(player, Sound.RANDOM_CLICK);
                     break;
                 case "22":
-                    l.addSound(new PistonInSound(p));
+                    l.addSound(player, Sound.TILE_PISTON_IN);
                     break;
                 case "23":
-                    l.addSound(new PistonOutSound(p));
+                    l.addSound(player, Sound.TILE_PISTON_OUT);
                     break;
             }
         }
