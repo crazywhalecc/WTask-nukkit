@@ -8,7 +8,6 @@ import cn.nukkit.Server;
 import cn.nukkit.item.Item;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
-import com.sun.jdi.InterfaceType;
 import me.onebone.economyapi.EconomyAPI;
 import money.Money;
 
@@ -109,6 +108,7 @@ public class WTaskAPI{
                         task3.put("taskline", taskIns3.get("taskline"));
                         task3.put("repeatTime", subMain[2]);
                         task3.put("repeatActive", (subMain[3].equals("true")));
+                        plugin.getServer().getLogger().info("写入循环任务：" + taskname);
                         plugin.taskData.put(taskname, task3);
                         break;
                     default:
@@ -202,6 +202,41 @@ public class WTaskAPI{
         return false;
     }
 
+    public boolean addRepeatTask(String type, String taskname, String time, String data){
+        this.loadTasks();
+        if(this.isTaskExists(taskname)) return false;
+        File path = new File(plugin.getDataFolder(), "tasks/");
+        File file = new File(path, taskname + ".cc");
+        if(file.exists()) return false;
+        try{
+            try{
+                boolean r = file.createNewFile();
+                if(!r){
+                    System.out.println("新文件创建不了！");
+                    plugin.getLogger().warning("创建任务失败！");
+                    return false;
+                }
+            } catch (IOException e){
+                System.out.println("无法创建文件！");
+            }
+            FileOutputStream os = new FileOutputStream(new File(path, taskname + ".cc"));
+            os.write(("[循环任务:" + taskname + ":" + time + ":" + type + "]\n" + data).getBytes());
+            loadTasks();
+        } catch (Exception ignored){
+            if (ignored instanceof FileNotFoundException)
+                System.out.println("新建写入任务时候未找到文件！");
+            else if (!(ignored instanceof IOException)) {
+                System.out.println("无法写入文件！");
+            }
+            plugin.getLogger().warning("创建任务失败！");
+        }
+        return true;
+    }
+
+    public boolean addRepeatTask(String type, String taskname, String time){
+        return addRepeatTask(type, taskname, time, "<结束>");
+    }
+
     public boolean addActTask(String type, String taskname, String active){
         if (isTaskExists(taskname)) {
             System.out.println("r任务真的已经存在了");
@@ -269,7 +304,7 @@ public class WTaskAPI{
         }
         ArrayList<Map<String, String>> lineData = prepareTask(taskname);
         plugin.normalTaskList.put(taskname, lineData);
-        boolean r = this.runNormalTask(taskname, p, 0);
+        boolean r = this.runNormalTask(taskname, p);
         if (!r) {
             p.sendMessage(TextFormat.RED + "任务运行失败！");
         }
@@ -309,28 +344,25 @@ public class WTaskAPI{
 
     public String[] array_shift(String[] li) {
         if (li.length == 1) {
-            String[] s = new String[0];
-            return s;
+            return new String[0];
         }
         ArrayList<String> my = new ArrayList<>();
-        for (int sss = 1; sss < li.length; sss++) {
-            my.add(li[sss]);
-        }
+        my.addAll(Arrays.asList(li).subList(1, li.length));
         return my.toArray(new String[0]);
     }
 
     public String implode(String chars, ArrayList<String> list) {
-        String finals = "";
+        StringBuilder finals = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             if (i != (list.size() - 1))
-                finals = finals + list.get(i) + chars;
+                finals.append(list.get(i)).append(chars);
             else
-                finals = finals + list.get(i);
+                finals.append(list.get(i));
         }
-        return finals;
+        return finals.toString();
     }
 
-    boolean runNormalTask(String taskname, Player p, int ID) {
+    boolean runNormalTask(String taskname, Player p) {
         return runNormalTask(taskname, p, 0, false);
     }
 
@@ -950,6 +982,8 @@ public class WTaskAPI{
                 return "";
         }
     }
+
+
 
     public String checkCirculate(String line, Player p) {
         if (line.substring(0, 1).equals("(")) {

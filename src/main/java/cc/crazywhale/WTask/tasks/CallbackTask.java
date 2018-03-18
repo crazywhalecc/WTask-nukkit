@@ -1,5 +1,6 @@
 package cc.crazywhale.WTask.tasks;
 
+import cc.crazywhale.WTask.WTask;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.Task;
 
@@ -32,7 +33,7 @@ public class CallbackTask extends Task {
             System.out.println("Unable to initialize Class! Reason: " + reason);
         }
     }
-    public CallbackTask(Class<? extends PluginBase> callable, String function, ArrayList<Object> args){
+    public CallbackTask(WTask callable, String function, ArrayList<Object> args){
         this.callable = callable.getName();
         this.function = function;
         this.args = args;
