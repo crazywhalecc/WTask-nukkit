@@ -6,6 +6,7 @@ import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Location;
 import cn.nukkit.network.protocol.TextPacket;
 import cn.nukkit.utils.TextFormat;
 import me.onebone.economyapi.EconomyAPI;
@@ -512,11 +513,11 @@ public class WTaskAPI{
                     return false;
                 }
             }
-            System.out.println("检测到玩家：" + p.getName() + "运行了任务： " + taskname);
+            //System.out.println("检测到玩家：" + p.getName() + "运行了任务： " + taskname);
         }
         NormalTaskAPI t = new NormalTaskAPI(p, this);
         ArrayList<Map<String, String>> taskInside = this.plugin.normalTaskList.get(taskname);
-        System.out.println("size: " + taskInside.size());
+        //System.out.println("size: " + taskInside.size());
         while (ID < taskInside.size()) {
             Map<String, String> currentMap = taskInside.get(ID);
             switch (currentMap.get("type")) {
@@ -642,12 +643,13 @@ public class WTaskAPI{
                     return "false:玩家不存在，无法食用玩家动作！";
                 }
                 switch (curDat[0]) {
+
                     case "允许飞行":
-                        t.player.getAdventureSettings().set(AdventureSettings.Type.ALLOW_FLIGHT, true);
+                        t.player.getAdventureSettings().setCanFly(true);
                         return "true";
                     case "取消飞行":
-                        t.player.getAdventureSettings().set(AdventureSettings.Type.FLYING, false);
-                        t.player.getAdventureSettings().set(AdventureSettings.Type.ALLOW_FLIGHT, false);
+                        t.player.getAdventureSettings().setCanFly(false);
+                        t.player.getAdventureSettings().setFlying(false);
                         return "true";
                     case "设置血量":
                     case "sethealth":

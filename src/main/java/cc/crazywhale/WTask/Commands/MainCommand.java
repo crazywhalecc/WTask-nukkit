@@ -3,6 +3,7 @@ package cc.crazywhale.WTask.Commands;
 import cc.crazywhale.WTask.Config;
 import cc.crazywhale.WTask.WTask;
 import cc.crazywhale.WTask.WTaskAPI;
+import cn.nukkit.Player;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 
@@ -49,6 +50,13 @@ public class MainCommand extends Command {
             sender.sendMessage("§c[WTask] 请输入 /" + cmd + " help [页数]");
             return true;
         } else switch (args[0]) {
+            case "运行": {
+                if (args.length==2) {
+                    String taskname = args[1];
+                    this.api.preNormalTask(taskname,(Player) sender);
+                }
+                return true;
+            }
             case "help":
                 if (args.length == 1) {
                     sendHelp(sender, 1);
@@ -91,16 +99,16 @@ public class MainCommand extends Command {
                     return true;
                 }
                 String fileName = args[1];
-                File file = new File(this.plugin.getDataFolder().getPath() + "CustomConfig/", fileName);
+                File file = new File(this.plugin.getDataFolder().getPath() + "/CustomConfig/", fileName);
                 if (file.exists()) {
                     sender.sendMessage("§c[WTask] 对不起，这个名字的配置文件已经存在了！");
                     return true;
                 }
-                new Config(this.plugin.getDataFolder().getPath() + "CustomConfig/" + fileName + ".yml", Config.YAML);
+                new Config(this.plugin.getDataFolder().getPath() + "/CustomConfig/" + fileName + ".yml", Config.YAML);
                 sender.sendMessage("§a[WTask] 成功创建自定义配置文件！");
                 return true;
             case "info":
-                sender.sendMessage("§6===============\n§b*    WTask-nukkit    *\n§eTwitter: @BlockForWhale\n§a鲸鱼QQ: 627577391\n§d插件页面: pl.zxda.net/plugins/532.html\n§6===============");
+                sender.sendMessage("§6===============\n§b*    WTask-nukkit    *\n§eTwitter: @BlockForWhale\n§a鲸鱼QQ: 627577391\n§d插件页面: pl.zxda.net/plugins/532.html\n§6===============\n亦染修改版本");
                 return true;
             case "权限":
                 if (args.length <= 2) {

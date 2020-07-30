@@ -8,8 +8,9 @@ import cn.nukkit.entity.data.Skin;
 import cn.nukkit.item.Item;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.Level;
+import cn.nukkit.level.Location;
 import cn.nukkit.level.Position;
-import cn.nukkit.level.Sound;
+import cn.nukkit.level.sound.Sound;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.potion.Effect;
 import me.onebone.economyapi.EconomyAPI;
@@ -166,7 +167,7 @@ public class NormalTaskAPI implements TaskBase {
             all = true;
         }
         lis[1] = this.api.executeReturnData(lis[1],this.player);
-        Position pos = this.executePosition(lis[1]);
+        Location pos = this.executePosition(lis[1]);
         if(all)
         {
             for(Map.Entry<UUID,Player> each : this.api.plugin.getServer().getOnlinePlayers().entrySet())
@@ -185,13 +186,18 @@ public class NormalTaskAPI implements TaskBase {
     }
 
 
-    public Position executePosition(String pos)
+    public Location executePosition(String pos)
     {
         String[] newPos = pos.split(":");
         Level level = this.api.plugin.getServer().getLevelByName(newPos[3]);
         if(level == null)
             return null;
-        return new Position(Double.parseDouble(newPos[0]),Double.parseDouble(newPos[1]),Double.parseDouble(newPos[2]),level);
+        Location location = new Location(Double.parseDouble(newPos[0]),Double.parseDouble(newPos[1]),Double.parseDouble(newPos[2]),level);
+        if (newPos.length>=6){
+            location.yaw = Double.parseDouble(newPos[4]);
+            location.pitch = Double.parseDouble(newPos[5]);
+        }
+        return location;
     }
 
     public String addMoney(String it)
@@ -252,6 +258,21 @@ public class NormalTaskAPI implements TaskBase {
             return "false:玩家不存在！";
         }
         it = api.executeReturnData(it,player);
+        if (it.contains("|")) {
+            if (it.split("\\|")[0].equals("op")) {
+                if (!this.player.isOp()) {
+                    this.player.setOp(true);
+                    if (api.plugin.getServer().dispatchCommand(this.player, it.split("\\|")[1].replace("%p", this.player.getName()))) {
+                        this.player.setOp(false);
+                        return "true";
+                    }
+                } else {
+                    if (api.plugin.getServer().dispatchCommand(this.player, it.split("\\|")[1].replace("%p", this.player.getName()))) {
+                        return "true";
+                    }
+                }
+            }
+        }
         if(api.plugin.getServer().dispatchCommand(this.player, it.replace("%p",this.player.getName()))){
             return "true";
         }
@@ -421,8 +442,9 @@ public class NormalTaskAPI implements TaskBase {
         String[] its = it.split(",");
         for(String pick : its){
             switch(pick){
+                /*
                 case "1":
-                    l.addSound(player, Sound.RANDOM_ANVIL_LAND);
+                    l.addSound(player, player.getLevel().addSound(););
                     break;
                 case "2":
                     l.addSound(player, Sound.RANDOM_ANVIL_USE);
@@ -487,6 +509,8 @@ public class NormalTaskAPI implements TaskBase {
                 case "23":
                     l.addSound(player, Sound.TILE_PISTON_OUT);
                     break;
+
+                 */
             }
         }
         return "true";
@@ -503,11 +527,11 @@ public class NormalTaskAPI implements TaskBase {
         switch(its[0]){
             case "创建":
                 String filename = api.executeReturnData(its[1],this.player);
-                api.plugin.customConfig.put(filename,new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename + ".yml",Config.YAML));
+                api.plugin.customConfig.put(filename,new Config(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/" + filename + ".yml",Config.YAML));
                 return "true";
             case "写入":
                 String filename2 = api.executeReturnData(its[1],this.player);
-                File file = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename2+".yml");
+                File file = new File(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/",filename2+".yml");
                 if(!file.exists()){
                     return "false:文件不存在！";
                 }
@@ -516,7 +540,7 @@ public class NormalTaskAPI implements TaskBase {
                     String inside = api.executeReturnData(its[3],player);
                     Config cfg;
                     if(!api.plugin.customConfig.containsKey(filename2)){
-                        cfg = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename2 + ".yml",Config.YAML);
+                        cfg = new Config(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/" + filename2 + ".yml",Config.YAML);
                     }
                     else{
                         cfg = api.plugin.customConfig.get(filename2);
@@ -527,54 +551,109 @@ public class NormalTaskAPI implements TaskBase {
                 }
             case "是否存在文件":
                 String filename3 = api.executeReturnData(its[1],this.player);
-                File file2 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename3 + ".yml");
+                File file2 = new File(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/",filename3 + ".yml");
                 if(file2.exists()){
                     return this.doSubCommand(its[2]);
                 }
                 else{
                     return this.doSubCommand(its[3]);
                 }
-            case "是否存在":
-                String filename4 = api.executeReturnData(its[1],this.player);
-                File file3 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename4 + ".yml");
-                if(!file3.exists()){
+            case "是否存在": {
+                String filename4 = api.executeReturnData(its[1], this.player);
+                File file3 = new File(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/", filename4 + ".yml");
+                if (!file3.exists()) {
                     return this.doSubCommand(its[4]);
                 }
                 Config cfg;
-                if(!api.plugin.customConfig.containsKey(filename4)){
-                    cfg = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename4 + ".yml",Config.YAML);
-                }
-                else{
+                if (!api.plugin.customConfig.containsKey(filename4)) {
+                    cfg = new Config(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/" + filename4 + ".yml", Config.YAML);
+                } else {
                     cfg = api.plugin.customConfig.get(filename4);
                 }
-                if(cfg.exists(its[2])){
+                String key = api.executeReturnData(its[2], this.player);
+                if (cfg.exists(key)) {
                     return this.doSubCommand(its[3]);
-                }
-                else{
+                } else {
                     return this.doSubCommand(its[4]);
                 }
-            case "删除":
-                String filename5 = api.executeReturnData(its[1],this.player);
-                File file5 = new File(this.api.plugin.getDataFolder().getPath() + "CustomConfig/",filename5+".yml");
-                if(!file5.exists()){
+            }
+            case "删除": {
+                String filename5 = api.executeReturnData(its[1], this.player);
+                File file5 = new File(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/", filename5 + ".yml");
+                if (!file5.exists()) {
                     return "false:文件不存在！";
-                }
-                else{
-                    String itemName = api.executeReturnData(its[2],player);
+                } else {
+                    String itemName = api.executeReturnData(its[2], player);
                     Config cfg2;
-                    if(!api.plugin.customConfig.containsKey(filename5)){
-                        cfg2 = new Config(this.api.plugin.getDataFolder().getPath() + "CustomConfig/" + filename5 + ".yml",Config.YAML);
-                    }
-                    else{
+                    if (!api.plugin.customConfig.containsKey(filename5)) {
+                        cfg2 = new Config(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/" + filename5 + ".yml", Config.YAML);
+                    } else {
                         cfg2 = api.plugin.customConfig.get(filename5);
                     }
                     cfg2.remove(itemName);
                     cfg2.save();
                     return "true";
                 }
+            }
+            case "比较": {
+                String filename6 = api.executeReturnData(its[1], this.player);
+                File file6 = new File(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/", filename6 + ".yml");
+                if (!file6.exists()) {
+                    return this.doSubCommand(its[6]);
+                }
+                Config cfg3;
+                if (!api.plugin.customConfig.containsKey(filename6)) {
+                    cfg3 = new Config(this.api.plugin.getDataFolder().getPath() + "/CustomConfig/" + filename6 + ".yml", Config.YAML);
+                } else {
+                    cfg3 = api.plugin.customConfig.get(filename6);
+                }
+                String key = api.executeReturnData(its[2],this.player);
+                if (cfg3.exists(key)) {
+                    int value = Integer.parseInt(cfg3.getString(key));
+                    switch (its[3]) {
+                        case "<": {
+                            if (value < Integer.parseInt(its[4])) {
+                                return this.doSubCommand(its[5]);
+                            } else {
+                                return this.doSubCommand(its[6]);
+                            }
+                        }
+                        case ">": {
+                            if (value > Integer.parseInt(its[4])) {
+                                return this.doSubCommand(its[5]);
+                            } else {
+                                return this.doSubCommand(its[6]);
+                            }
+                        }
+                        case "<=": {
+                            if (value <= Integer.parseInt(its[4])) {
+                                return this.doSubCommand(its[5]);
+                            } else {
+                                return this.doSubCommand(its[6]);
+                            }
+                        }
+                        case ">=": {
+                            if (value >= Integer.parseInt(its[4])) {
+                                return this.doSubCommand(its[5]);
+                            } else {
+                                return this.doSubCommand(its[6]);
+                            }
+                        }
+                        case "==": {
+                            if (value == Integer.parseInt(its[4])) {
+                                return this.doSubCommand(its[5]);
+                            } else {
+                                return this.doSubCommand(its[6]);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
             default:
                 return "false:错误的选项！";
         }
+        return "false:错误的选项！";
     }
 
     public String manageTemp(String it){

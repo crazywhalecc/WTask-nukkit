@@ -18,6 +18,7 @@ public class ActNormalTaskCommand extends Command {
     private WTask plugin;
     private String cmd;
     private WTaskAPI api;
+    public static ActNormalTaskCommand ActNormalTaskCommand;
 
     public ActNormalTaskCommand(WTask plugin, Map<String, Object> desc) {
         super((String) desc.get("command"),(String) desc.get("desctiption"), null, (String[]) (desc.get("multiple") == null ? new String[0] : ((ArrayList<String>)desc.get("multiple")).toArray(new String[((ArrayList<String>)desc.get("multiple")).size()])));
@@ -25,6 +26,7 @@ public class ActNormalTaskCommand extends Command {
         this.api = plugin.api;
         this.plugin = plugin;
         this.setPermission((String) desc.get("permission"));
+        ActNormalTaskCommand = this;
     }
 
     public boolean execute(CommandSender sender, String ssss, String[] args)
@@ -43,7 +45,12 @@ public class ActNormalTaskCommand extends Command {
                     sender.sendMessage("请在游戏内运行任务！");
                     return true;
                 }
-                this.api.preNormalTask(taskname,(Player) sender);
+                switch (args[1]){
+                    case "运行":{
+
+                        break;
+                    }
+                }
                 return true;
             }
             else

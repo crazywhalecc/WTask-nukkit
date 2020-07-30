@@ -9,12 +9,15 @@ import cc.crazywhale.WTask.tasks.CallbackTask;
 import cc.crazywhale.WTask.tasks.PressureTask;
 import cc.crazywhale.WTask.tasks.RepeatTask;
 import cn.nukkit.Player;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.scheduler.Task;
 import oshi.jna.platform.unix.solaris.LibKstat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,7 +39,7 @@ public class WTask extends PluginBase {
 
     public Map<String, Map<String, String>> privateTempData;
     public Map<String, String> publicTempData;
-    public Map<String, Config> customConfig;
+    public Map<String, Config> customConfig = new HashMap<>();
     final int CONFIG_VERSION = 6;
 
     Map<String, TaskListener> actTaskListener;
@@ -100,6 +103,7 @@ public class WTask extends PluginBase {
                 break;
         }
     }
+
 
     private void makeConfig() {
         Map<String, Object> map = new LinkedHashMap<>();
