@@ -1,5 +1,5 @@
 # WTask-nukkit
-[![Build Status](https://travis-ci.org/BlueWhaleNetwork/WTask-nukkit.svg?branch=master)](https://travis-ci.org/BlueWhaleNetwork/WTask-nukkit)<br>
+[![Build Status](https://travis-ci.org/crazywhalecc/WTask-nukkit.svg?branch=master)](https://travis-ci.org/crazywhalecc/WTask-nukkit)<br>
 捐赠鲸鱼按钮-&gt;&gt;[![Alipay donate button](https://img.shields.io/badge/paypal-donate-blue.svg)](https://qr.alipay.com/tsx023405zt3zy1xw6nbt40)<br>
 [![QQ群](https://img.shields.io/badge/qq%E7%BE%A4-237043779-orange.svg)](https://jq.qq.com/?_wv=1027&k=5Euplde)<br>
 WTask-nukkit特别版～<br>
